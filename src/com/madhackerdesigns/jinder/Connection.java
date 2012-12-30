@@ -3,14 +3,19 @@ package com.madhackerdesigns.jinder;
 import java.io.IOException;
 import java.net.URI;
 
+import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
+import com.sun.jndi.toolkit.url.Uri;
 
 public class Connection {
 
@@ -20,7 +25,7 @@ public class Connection {
   private static HttpRequestFactory connection;
   
   private String subdomain;
-  private URI uri;
+  private String uri;
   private ConnectionOptions options;
   private String token;
   
@@ -32,9 +37,16 @@ public class Connection {
     buildConnection(subdomain, options);
   }
   
-  public void setJsonFactory(JsonFactory jsonFactory) {
+  public String token() throws IOException {
+    if (token == null) {
+      GenericUrl meUrl = new GenericUrl(uri + "/users/me.json");
+      HttpRequest request = connection().buildGetRequest(meUrl).setInterceptor(tokenAuth());
+      HttpResponse response = request.execute();
+      // TODO: continue here
+    }
+    return token;
   }
-  
+
   public boolean usingSSL() {
 	  return options.ssl;
   }
@@ -51,7 +63,7 @@ public class Connection {
   private void buildConnection(String subdomain, ConnectionOptions options) {
     this.subdomain = subdomain;
     this.options = options;
-    this.uri = URI.create((options.ssl ? "https" : "http") + "://" + subdomain + "." + HOST);
+    this.uri = (options.ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
     this.token = options.token;
     
     connection();
@@ -66,6 +78,10 @@ public class Connection {
         request.setParser(new JsonObjectParser(options.jsonFactory));
       }
     };
+  }
+  
+  private HttpExecuteInterceptor tokenAuth() {
+    return new BasicAuthentication(options.username, options.password);
   }
   
   // embedded classes
