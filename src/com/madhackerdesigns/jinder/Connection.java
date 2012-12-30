@@ -1,11 +1,11 @@
 package com.madhackerdesigns.jinder;
 
 import java.io.IOException;
-import java.net.URI;
 
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -15,7 +15,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
-import com.sun.jndi.toolkit.url.Uri;
+import com.google.api.client.util.Key;
 
 public class Connection {
 
@@ -30,21 +30,30 @@ public class Connection {
   private String token;
   
   public Connection(String subdomain) {
-    buildConnection(subdomain, new ConnectionOptions());
+    setupConnection(subdomain, new ConnectionOptions());
   }
 
   public Connection(String subdomain, ConnectionOptions options) {
-    buildConnection(subdomain, options);
+    setupConnection(subdomain, options);
   }
   
   public String token() throws IOException {
     if (token == null) {
-      GenericUrl meUrl = new GenericUrl(uri + "/users/me.json");
-      HttpRequest request = connection().buildGetRequest(meUrl).setInterceptor(tokenAuth());
-      HttpResponse response = request.execute();
-      // TODO: continue here
+      token = requestToken();
     }
     return token;
+  }
+  
+  public HttpResponse get(String path) throws IOException {
+    return connection().buildGetRequest(urlFor(path)).execute();
+  }
+  
+  public HttpResponse post(String path, HttpContent content) throws IOException {
+    return connection().buildPostRequest(urlFor(path), content).execute();
+  }
+  
+  public HttpResponse put(String path, HttpContent content) throws IOException {
+    return connection().buildPutRequest(urlFor(path), content).execute();
   }
 
   public boolean usingSSL() {
@@ -53,6 +62,16 @@ public class Connection {
   
   // private methods
   
+  private HttpExecuteInterceptor basicAuthentication() {
+    if (token == null) {
+      return new BasicAuthentication(options.username, options.password);
+    } else {
+      return new BasicAuthentication(token, "X");
+    }
+  }
+  
+  private HttpRequestFactory buildConnection() { return connection(); }
+  
   private HttpRequestFactory connection() {
     if (connection == null) {
       connection = HTTP_TRANSPORT.createRequestFactory(setConnectionOptions());
@@ -60,13 +79,14 @@ public class Connection {
     return connection;
   }
   
-  private void buildConnection(String subdomain, ConnectionOptions options) {
-    this.subdomain = subdomain;
-    this.options = options;
-    this.uri = (options.ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
-    this.token = options.token;
-    
-    connection();
+  private GenericUrl urlFor(String path) {
+    return new GenericUrl(uri + path);
+  }
+
+  private String requestToken() throws IOException {
+    HttpRequest request = connection().buildGetRequest(urlFor("/users/me.json"));
+    Self self = request.execute().parseAs(Self.class);
+    return self.user.api_auth_token;
   }
   
   private HttpRequestInitializer setConnectionOptions() {
@@ -75,13 +95,18 @@ public class Connection {
       @Override
       public void initialize(HttpRequest request) throws IOException {
         request.setBackOffPolicy(new ExponentialBackOffPolicy());
+        request.setInterceptor(basicAuthentication());
         request.setParser(new JsonObjectParser(options.jsonFactory));
       }
     };
   }
   
-  private HttpExecuteInterceptor tokenAuth() {
-    return new BasicAuthentication(options.username, options.password);
+  private void setupConnection(String subdomain, ConnectionOptions options) {
+    this.subdomain = subdomain;
+    this.options = options;
+    this.uri = (options.ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
+    this.token = options.token;
+    buildConnection();
   }
   
   // embedded classes
@@ -94,5 +119,20 @@ public class Connection {
     String token;
     String username;
     String password;
+  }
+  
+  public class Self {
+    @Key User user;
+  }
+  
+  public class User {
+    @Key Integer id;
+    @Key String name;
+    @Key String email_address;
+    @Key boolean admin;
+    @Key String created_at;
+    @Key String type;
+    @Key String avatar_url;
+    @Key String api_auth_token;
   }
 }
