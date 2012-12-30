@@ -20,8 +20,8 @@ import com.madhackerdesigns.jinder.models.Self;
 public class Connection {
 
   private static final String HOST = "campfirenow.com";
-  private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
   
+  private static HttpTransport httpTransport = new NetHttpTransport();
   private static HttpRequestFactory connection;
   private static JsonFactory jsonFactory;
   
@@ -38,9 +38,15 @@ public class Connection {
     setupConnection(subdomain, options);
   }
   
+  public Connection(String subdomain, ConnectionOptions options, HttpTransport transport) {
+    httpTransport = transport;
+    setupConnection(subdomain, options);
+  }
+  
   public String token() throws IOException {
     if (token == null) {
-      token = requestToken();
+      Self self = get("/users/me.json").parseAs(Self.class);
+      token = self.user.api_auth_token;
     }
     return token;
   }
@@ -77,14 +83,9 @@ public class Connection {
   
   private HttpRequestFactory connection() {
     if (connection == null) {
-      connection = HTTP_TRANSPORT.createRequestFactory(setConnectionOptions());
+      connection = httpTransport.createRequestFactory(setConnectionOptions());
     }
     return connection;
-  }
-
-  private String requestToken() throws IOException {
-    Self self = get("/users/me.json").parseAs(Self.class);
-    return self.user.api_auth_token;
   }
   
   private HttpRequestInitializer setConnectionOptions() {
@@ -109,16 +110,5 @@ public class Connection {
   
   private GenericUrl urlFor(String path) {
     return new GenericUrl(uri + path);
-  }
-  
-  // embedded classes
-
-  public class ConnectionOptions {
-    JsonFactory jsonFactory;
-    String proxy;
-    boolean ssl = true;
-    String token;
-    String username;
-    String password;
   }
 }

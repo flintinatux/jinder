@@ -1,6 +1,5 @@
 package com.madhackerdesigns.jinder;
 
-import com.madhackerdesigns.jinder.Connection.ConnectionOptions;
 
 public class Campfire {
   
