@@ -51,6 +51,14 @@ public class Connection {
     connection = null;
   }
   
+  public void disableSSL() {
+    ssl = false;
+  }
+  
+  public void enableSSL() {
+    ssl = true;
+  }
+  
   public HttpResponse get(String path) throws IOException {
     return connection().buildGetRequest(urlFor(path)).execute();
   }
@@ -71,19 +79,11 @@ public class Connection {
   public void setJsonFactory(JsonFactory jsonFactory) {
     Connection.jsonFactory = jsonFactory;
   }
-  
-  public void disableSSL() {
-    ssl = false;
-  }
-  
-  public void enableSSL() {
-    ssl = true;
-  }
 
   public Boolean ssl() {
-	  if (ssl == null) {
-	    ssl = true;
-	  }
+    if (ssl == null) {
+      ssl = true;
+    }
     return ssl;
   }
 

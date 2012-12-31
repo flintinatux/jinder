@@ -1,18 +1,25 @@
 {"rooms": [
   {
-    "name": "Room 1",
-    "created_at": "2007/03/16 18:03:21 +0000",
-    "updated_at": "2007/03/16 18:03:21 +0000",
-    "topic": "Testing",
     "id": 80749,
-    "membership_limit": 4
+    "name": "Room 1",
+    "topic": "37signals HQ",
+    "membership_limit": 60,
+    "full": false,
+    "open_to_guests": false,
+    "created_at": "2011/09/30 17:44:57 +0000",
+    "updated_at": "2011/09/30 17:44:57 +0000",
+    "locked": false
   },
   {
-    "name": "Room 2",
-    "created_at": "2007/03/16 18:04:54 +0000",
-    "updated_at": "2007/03/16 18:04:54 +0000",
-    "topic": "test",
     "id": 80751,
-    "membership_limit": 4
+    "name": "Room 2",
+    "topic": "Test Topic",
+    "membership_limit": 60,
+    "full": false,
+    "open_to_guests": true,
+    "active_token_value": "4c8fb",
+    "created_at": "2011/10/03 13:01:37 +0000",
+    "updated_at": "2011/10/03 13:01:37 +0000",
+    "locked": false
   }]
 }

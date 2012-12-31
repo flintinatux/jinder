@@ -14,14 +14,8 @@ public class MockTransport extends MockHttpTransport {
   private int statusCode;
   private String content;
   private String expectedPath;
-  
-  public MockTransport(int statusCode, String content) {
-    super();
-    this.statusCode = statusCode;
-    this.content = content;
-  }
-  
-  public MockTransport(int statusCode, String content, String expectedPath) {
+
+  public MockTransport(String expectedPath, int statusCode, String content) {
     super();
     this.statusCode = statusCode;
     this.content = content;
@@ -35,14 +29,21 @@ public class MockTransport extends MockHttpTransport {
       @Override
       public LowLevelHttpResponse execute() throws IOException {
         MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
-        response.setStatusCode(statusCode);
+        response.setStatusCode(statusCode());
         response.setContent(content());
         return response;
       }
       
+      private int statusCode() {
+        return expectedPath.equals(givenPath()) ? statusCode : 200;
+      }
+
       private String content() {
-        String givenPath = new GenericUrl(getUrl()).getRawPath();
-        return (expectedPath == null || expectedPath.equals(givenPath)) ? content : "";
+        return expectedPath.equals(givenPath()) ? content : "";
+      }
+
+      private String givenPath() {
+        return new GenericUrl(getUrl()).getRawPath();
       }
       
     };
