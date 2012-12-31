@@ -1,47 +1,45 @@
 package com.madhackerdesigns.jinder.test;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 
+import org.junit.After;
 import org.junit.Test;
 
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.LowLevelHttpRequest;
-import com.google.api.client.http.LowLevelHttpResponse;
-import com.google.api.client.testing.http.MockHttpTransport;
-import com.google.api.client.testing.http.MockLowLevelHttpRequest;
-import com.google.api.client.testing.http.MockLowLevelHttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.madhackerdesigns.jinder.Connection;
-import com.madhackerdesigns.jinder.ConnectionOptions;
+import com.madhackerdesigns.jinder.models.Self;
+import com.madhackerdesigns.jinder.test.helpers.Fixture;
+import com.madhackerdesigns.jinder.test.helpers.MockTransport;
 
 public class ConnectionTest {
-
-  @Test
-  public void raisesExceptionWithBadCredentials() throws IOException {
-    ConnectionOptions options = new ConnectionOptions();
-    options.token = "token";
-    Connection connection = new Connection("test", options, unauthorizedTransport());
-    connection.get("/rooms.json");
+  
+  @After
+  public void clearConnection() {
+    Connection.clearConnection();
   }
 
-  private HttpTransport unauthorizedTransport() {
-    return new MockHttpTransport() {
-
-      @Override
-      protected LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
-        return new MockLowLevelHttpRequest(url) {
-
-          @Override
-          public LowLevelHttpResponse execute() throws IOException {
-            MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
-            response.setStatusCode(401);
-            response.setContent("Unauthorized");
-            return response;
-          }
-          
-        };
-      }
-      
-    };
+  @Test(expected = HttpResponseException.class)
+  public void raisesExceptionWithBadCredentials() throws IOException {
+    Connection connection = new Connection("test", "foo");
+    connection.setHttpTransport(new MockTransport(401, "Unauthorized"));
+    connection.get("/rooms.json");
+  }
+  
+  @Test(expected = HttpResponseException.class)
+  public void raisesExceptionWhenInvalidSubdomainSpecified() throws IOException {
+    Connection connection = new Connection("test", "foo");
+    connection.setHttpTransport(new MockTransport(404, "Not found"));
+    connection.get("/rooms.json");
+  }
+  
+  @Test
+  public void looksUpTokenWhenUsernameAndPasswordProvided() throws IOException {
+    Connection connection = new Connection("test", "user", "pass");
+    connection.setHttpTransport(new MockTransport(200, new Fixture("me.json").read()));
+    String token = connection.get("/users/me.json").parseAs(Self.class).user.api_auth_token;
+    assertEquals("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", token);
   }
   
 }

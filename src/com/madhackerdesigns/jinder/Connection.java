@@ -15,40 +15,41 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
+import com.google.api.client.json.gson.GsonFactory;
 import com.madhackerdesigns.jinder.models.Self;
 
 public class Connection {
 
   private static final String HOST = "campfirenow.com";
   
-  private static HttpTransport httpTransport = new NetHttpTransport();
   private static HttpRequestFactory connection;
+  private static HttpTransport httpTransport;
   private static JsonFactory jsonFactory;
   
   private String subdomain;
   private String uri;
-  private ConnectionOptions options;
   private String token;
+  private String username;
+  private String password;
+  private boolean ssl;
   
-  public Connection(String subdomain) {
-    setupConnection(subdomain, new ConnectionOptions());
+  // constructors
+  
+  public Connection(String subdomain, String token) {
+    this.subdomain = subdomain;
+    this.token = token;
   }
 
-  public Connection(String subdomain, ConnectionOptions options) {
-    setupConnection(subdomain, options);
+  public Connection(String subdomain, String username, String password) {
+    this.subdomain = subdomain;
+    this.username = username;
+    this.password = password;
   }
   
-  public Connection(String subdomain, ConnectionOptions options, HttpTransport transport) {
-    httpTransport = transport;
-    setupConnection(subdomain, options);
-  }
+  // public methods
   
-  public String token() throws IOException {
-    if (token == null) {
-      Self self = get("/users/me.json").parseAs(Self.class);
-      token = self.user.api_auth_token;
-    }
-    return token;
+  public static void clearConnection() {
+    connection = null;
   }
   
   public HttpResponse get(String path) throws IOException {
@@ -62,53 +63,81 @@ public class Connection {
   public HttpResponse put(String path, HttpContent content) throws IOException {
     return connection().buildPutRequest(urlFor(path), content).execute();
   }
+  
+  public void setHttpTransport(HttpTransport httpTransport) {
+    Connection.httpTransport = httpTransport;
+  }
+  
+  public void setJsonFactory(JsonFactory jsonFactory) {
+    Connection.jsonFactory = jsonFactory;
+  }
+  
+  public void setSSL(boolean ssl) {
+    this.ssl = ssl;
+  }
 
   public boolean usingSSL() {
-	  return options.ssl;
+	  return ssl;
   }
   
   // private methods
   
   private HttpExecuteInterceptor basicAuthentication() throws IOException {
     if (token == null) {
-      return new BasicAuthentication(options.username, options.password);
+      return new BasicAuthentication(username, password);
     } else {
       return new BasicAuthentication(token(), "X");
     }
   }
   
-  private HttpRequestFactory buildConnection() {
-    return connection();
-  }
-  
   private HttpRequestFactory connection() {
     if (connection == null) {
-      connection = httpTransport.createRequestFactory(setConnectionOptions());
+      connection = httpTransport().createRequestFactory(setConnectionOptions());
     }
     return connection;
   }
   
+  private HttpTransport httpTransport() {
+    if (httpTransport == null) {
+      httpTransport = new NetHttpTransport();
+    }
+    return httpTransport;
+  }
+  
+  private JsonFactory jsonFactory() {
+    if (jsonFactory == null) {
+      jsonFactory = new GsonFactory();
+    }
+    return jsonFactory;
+  }
+
   private HttpRequestInitializer setConnectionOptions() {
     return new HttpRequestInitializer() {
       @Override
       public void initialize(HttpRequest request) throws IOException {
         request.setBackOffPolicy(new ExponentialBackOffPolicy());
         request.setInterceptor(basicAuthentication());
-        request.setParser(new JsonObjectParser(Connection.jsonFactory));
+        request.setParser(new JsonObjectParser(jsonFactory()));
       }
     };
   }
-  
-  private void setupConnection(String subdomain, ConnectionOptions options) {
-    this.subdomain = subdomain;
-    this.options = options;
-    this.uri = (options.ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
-    this.token = options.token;
-    Connection.jsonFactory = options.jsonFactory;
-    buildConnection();
+
+  private String token() throws IOException {
+    if (token == null) {
+      Self self = get("/users/me.json").parseAs(Self.class);
+      token = self.user.api_auth_token;
+    }
+    return token;
+  }
+
+  private String uri() {
+    if (uri == null) {
+      uri = (ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
+    }
+    return uri;
   }
   
   private GenericUrl urlFor(String path) {
-    return new GenericUrl(uri + path);
+    return new GenericUrl(uri() + path);
   }
 }
