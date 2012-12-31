@@ -27,11 +27,10 @@ public class Connection {
   private static JsonFactory jsonFactory;
   
   private String subdomain;
-  private String uri;
   private String token;
   private String username;
   private String password;
-  private boolean ssl;
+  private Boolean ssl;
   
   // constructors
   
@@ -66,18 +65,34 @@ public class Connection {
   
   public void setHttpTransport(HttpTransport httpTransport) {
     Connection.httpTransport = httpTransport;
+    clearConnection();
   }
   
   public void setJsonFactory(JsonFactory jsonFactory) {
     Connection.jsonFactory = jsonFactory;
   }
   
-  public void setSSL(boolean ssl) {
-    this.ssl = ssl;
+  public void disableSSL() {
+    ssl = false;
+  }
+  
+  public void enableSSL() {
+    ssl = true;
   }
 
-  public boolean usingSSL() {
-	  return ssl;
+  public Boolean ssl() {
+	  if (ssl == null) {
+	    ssl = true;
+	  }
+    return ssl;
+  }
+
+  public String token() throws IOException {
+    if (token == null) {
+      Self self = get("/users/me.json").parseAs(Self.class);
+      token = self.user.api_auth_token;
+    }
+    return token;
   }
   
   // private methods
@@ -122,19 +137,8 @@ public class Connection {
     };
   }
 
-  private String token() throws IOException {
-    if (token == null) {
-      Self self = get("/users/me.json").parseAs(Self.class);
-      token = self.user.api_auth_token;
-    }
-    return token;
-  }
-
   private String uri() {
-    if (uri == null) {
-      uri = (ssl ? "https" : "http") + "://" + subdomain + "." + HOST;
-    }
-    return uri;
+    return (ssl() ? "https" : "http") + "://" + subdomain + "." + HOST;
   }
   
   private GenericUrl urlFor(String path) {

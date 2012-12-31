@@ -9,21 +9,10 @@ import com.google.common.io.Files;
 
 public class Fixture {
   
-  private File fixturePath = new File("../fixtures");
-
-  private String filename;
+  private static final String fixturePath = "test/com/madhackerdesigns/jinder/test/fixtures";
   
-  public Fixture(String filename) {
-    this.filename = filename;
-  }
-  
-  public String read() throws IOException {
+  public static String fixture(String filename) throws IOException {
     return Files.toString(new File(fixturePath, filename), Charsets.UTF_8);
-  }
-
-  @Override
-  public String toString() {
-    return filename;
   }
 
 }
