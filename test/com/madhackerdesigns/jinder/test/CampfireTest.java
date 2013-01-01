@@ -89,7 +89,7 @@ public class CampfireTest extends JinderTest {
     mockTransport.addResponse("/room/80751.json", 200, fixture("room_80751.json"));
     campfire.connection().setHttpTransport(mockTransport);
     SortedSet<User> users = campfire.users();
-    assertEquals(2, users.size());
+    assertEquals(3, users.size());
     assertEquals("Jane Doe", users.first().name());
     assertEquals("John Doe", users.last().name());
   }
