@@ -1,6 +1,7 @@
 package com.madhackerdesigns.jinder.test.helpers;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.LowLevelHttpRequest;
@@ -11,16 +12,24 @@ import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 
 public class MockTransport extends MockHttpTransport {
 
-  private int statusCode;
-  private String content;
-  private String expectedPath;
+  private HashMap<String, Response> responses = new HashMap<String, Response>();
+  
+  // constructors
+  
+  public MockTransport() { }
 
   public MockTransport(String expectedPath, int statusCode, String content) {
     super();
-    this.statusCode = statusCode;
-    this.content = content;
-    this.expectedPath = expectedPath;
+    addResponse(expectedPath, statusCode, content);
   }
+  
+  // public methods
+  
+  public void addResponse(String expectedPath, int statusCode, String content) {
+    responses.put(expectedPath, new Response(statusCode, content));
+  }
+  
+  // protected methods
   
   @Override
   protected LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
@@ -35,18 +44,36 @@ public class MockTransport extends MockHttpTransport {
       }
       
       private int statusCode() {
-        return expectedPath.equals(givenPath()) ? statusCode : 200;
+        if (responses.containsKey(path())) {
+          return responses.get(path()).statusCode;
+        }
+        return 200;
       }
 
       private String content() {
-        return expectedPath.equals(givenPath()) ? content : "";
+        if (responses.containsKey(path())) {
+          return responses.get(path()).content;
+        }
+        return "";
       }
 
-      private String givenPath() {
+      private String path() {
         return new GenericUrl(getUrl()).getRawPath();
       }
       
     };
+  }
+  
+  // internal classes
+  
+  private class Response {
+    int statusCode;
+    String content;
+    
+    Response(int statusCode, String content) {
+      this.statusCode = statusCode;
+      this.content = content;
+    }
   }
 
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
 import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -13,6 +12,7 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.gson.GsonFactory;
@@ -63,12 +63,12 @@ public class Connection {
     return connection().buildGetRequest(urlFor(path)).execute();
   }
   
-  public HttpResponse post(String path, HttpContent content) throws IOException {
-    return connection().buildPostRequest(urlFor(path), content).execute();
+  public HttpResponse post(String path, Object object) throws IOException {
+    return connection().buildPostRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
-  public HttpResponse put(String path, HttpContent content) throws IOException {
-    return connection().buildPutRequest(urlFor(path), content).execute();
+  public HttpResponse put(String path, Object object) throws IOException {
+    return connection().buildPutRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
   public void setHttpTransport(HttpTransport httpTransport) {
@@ -117,6 +117,10 @@ public class Connection {
       httpTransport = new NetHttpTransport();
     }
     return httpTransport;
+  }
+  
+  private JsonHttpContent jsonContentFor(Object object) {
+    return new JsonHttpContent(jsonFactory(), object);
   }
   
   private JsonFactory jsonFactory() {

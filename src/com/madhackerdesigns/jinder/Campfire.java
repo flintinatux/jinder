@@ -2,8 +2,12 @@ package com.madhackerdesigns.jinder;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.madhackerdesigns.jinder.models.RoomList;
+import com.madhackerdesigns.jinder.models.Self;
+import com.madhackerdesigns.jinder.models.User;
 
 
 public class Campfire {
@@ -26,14 +30,6 @@ public class Campfire {
     return connection;
   }
   
-  public List<Room> rooms() throws IOException {
-    List<Room> rooms = connection().get("/rooms.json").parseAs(RoomList.class).rooms;
-    for (Room room : rooms) {
-      room.setConnection(connection);
-    }
-    return rooms;
-  }
-  
   public Room findRoomById(long id) throws IOException {
     for (Room room : rooms()) {
       if (id == room.id) { return room; }
@@ -53,6 +49,29 @@ public class Campfire {
       if (hash.equals(room.active_token_value)) { return room; }
     }
     return null;
+  }
+  
+  public User me() throws IOException {
+    return connection.get("/users/me.json").parseAs(Self.class).user;
+  }
+  
+  public List<Room> rooms() throws IOException {
+    List<Room> rooms = connection.get("/rooms.json").parseAs(RoomList.class).rooms;
+    for (Room room : rooms) {
+      room.setConnection(connection);
+    }
+    return rooms;
+  }
+  
+  public SortedSet<User> users() throws IOException {
+    SortedSet<User> users = new ConcurrentSkipListSet<User>();
+    for (Room room : rooms()) {
+//      users.addAll(room.users());
+      for (User user : room.users()) {
+        users.add(user);
+      }
+    }
+    return users;
   }
 
 }
