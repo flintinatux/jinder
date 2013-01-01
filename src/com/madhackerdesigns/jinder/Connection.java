@@ -95,6 +95,12 @@ public class Connection {
     return token;
   }
   
+  // protected methods
+  
+  protected GenericUrl urlFor(String path) {
+    return new GenericUrl(uri() + path);
+  }
+  
   // private methods
   
   private HttpExecuteInterceptor basicAuthentication() throws IOException {
@@ -120,6 +126,7 @@ public class Connection {
   }
   
   private JsonHttpContent jsonContentFor(Object object) {
+    if (object == null) { return null; }
     return new JsonHttpContent(jsonFactory(), object);
   }
   
@@ -145,7 +152,4 @@ public class Connection {
     return (ssl() ? "https" : "http") + "://" + subdomain + "." + HOST;
   }
   
-  private GenericUrl urlFor(String path) {
-    return new GenericUrl(uri() + path);
-  }
 }

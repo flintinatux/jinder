@@ -47,7 +47,7 @@ public class MockTransport extends MockHttpTransport {
         if (responses.containsKey(path())) {
           return responses.get(path()).statusCode;
         }
-        return 200;
+        return 400;
       }
 
       private String content() {
