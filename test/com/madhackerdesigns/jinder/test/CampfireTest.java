@@ -84,9 +84,9 @@ public class CampfireTest extends JinderTest {
   @Test
   public void returnsSortedListOfUsersInAllRooms() throws IOException {
     MockTransport mockTransport = new MockTransport();
-    mockTransport.addResponse("/rooms.json", 200, fixture("rooms.json"));
-    mockTransport.addResponse("/room/80749.json", 200, fixture("room_80749.json"));
-    mockTransport.addResponse("/room/80751.json", 200, fixture("room_80751.json"));
+    mockTransport.addResponse("GET", "/rooms.json", 200, fixture("rooms.json"));
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/room/80751.json", 200, fixture("room_80751.json"));
     campfire.connection().setHttpTransport(mockTransport);
     SortedSet<User> users = campfire.users();
     assertEquals(3, users.size());
@@ -96,7 +96,7 @@ public class CampfireTest extends JinderTest {
   
   @Test
   public void returnsCurrentUserInfoWhenMeRequested() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("/users/me.json", 200, fixture("me.json")));
+    campfire.connection().setHttpTransport(new MockTransport("GET", "/users/me.json", 200, fixture("me.json")));
     User me = campfire.me();
     assertEquals("John Doe", me.name());
   }
@@ -104,7 +104,7 @@ public class CampfireTest extends JinderTest {
   // private helpers
   
   private void setRoomsFixture() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("/rooms.json", 200, fixture("rooms.json")));
+    campfire.connection().setHttpTransport(new MockTransport("GET", "/rooms.json", 200, fixture("rooms.json")));
   }
 
 }

@@ -7,6 +7,8 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
+import com.madhackerdesigns.jinder.models.Message;
+import com.madhackerdesigns.jinder.models.MessageDetails;
 import com.madhackerdesigns.jinder.models.RoomDetails;
 import com.madhackerdesigns.jinder.models.User;
 
@@ -16,7 +18,7 @@ public class Room extends GenericJson {
   
   @Key public long id;
   @Key public String name;
-  @Key public String topic;
+  @Key private String topic;
   @Key public long membership_limit;
   @Key public Boolean full;
   @Key public Boolean open_to_guests;
@@ -67,18 +69,53 @@ public class Room extends GenericJson {
     return post("leave", null);
   }
   
+  public HttpResponse lock() throws IOException {
+    return post("lock", null);
+  }
+  
   public HttpResponse rename(String name) throws IOException {
-    this.name = name;
-    return update(name, this.topic);
+    return setName(name);
+  }
+  
+  public HttpResponse paste(String message) throws IOException {
+    return sendMessage(message, "PasteMessage");
+  }
+  
+  public HttpResponse play(String sound) throws IOException {
+    return sendMessage(sound, "SoundMessage");
   }
   
   public void setConnection(Connection connection) {
     this.connection = connection;
   }
   
+  public HttpResponse setName(String name) throws IOException {
+    return update(name, this.topic);
+  }
+  
+  public HttpResponse setTopic(String topic) throws IOException {
+    return update(this.name, topic);
+  }
+  
+  public HttpResponse speak(String message) throws IOException {
+    return sendMessage(message, "TextMessage");
+  }
+  
+  public String topic() throws IOException {
+    reload();
+    return topic;
+  }
+  
+  public HttpResponse tweet(String url) throws IOException {
+    return sendMessage(url, "TweetMessage");
+  }
+  
+  public HttpResponse unlock() throws IOException {
+    return post("unlock", null);
+  }
+  
   public List<User> users() throws IOException {
     reload();
-    if (users == null) { throw new IOException(); }
     return users;
   }
   
@@ -104,6 +141,12 @@ public class Room extends GenericJson {
   
   private HttpResponse post(String action, Object object) throws IOException {
     return connection.post(roomUrlFor(action), object);
+  }
+  
+  private HttpResponse sendMessage(String message, String type) throws IOException {
+    MessageDetails newMessage = new MessageDetails();
+    newMessage.message = new Message(message, type);
+    return connection.post(roomUrlFor("speak"), newMessage);
   }
   
   private HttpResponse update(String name, String topic) throws IOException {

@@ -12,27 +12,35 @@ import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 
 public class MockTransport extends MockHttpTransport {
 
-  private HashMap<String, Response> responses = new HashMap<String, Response>();
+  private HashMap<String, Response> getResponses = new HashMap<String, Response>();
+  private HashMap<String, Response> postResponses = new HashMap<String, Response>();
+  private HashMap<String, Response> putResponses = new HashMap<String, Response>();
+  private HashMap<String, Response> deleteResponses = new HashMap<String, Response>();
+  private String request_method;
+  private String request_path;
   
   // constructors
   
   public MockTransport() { }
 
-  public MockTransport(String expectedPath, int statusCode, String content) {
+  public MockTransport(String method, String expectedPath, int statusCode, String content) {
     super();
-    addResponse(expectedPath, statusCode, content);
+    addResponse(method, expectedPath, statusCode, content);
   }
   
   // public methods
   
-  public void addResponse(String expectedPath, int statusCode, String content) {
-    responses.put(expectedPath, new Response(statusCode, content));
+  public void addResponse(String method, String expectedPath, int statusCode, String content) {
+    responsesFor(method).put(expectedPath, new Response(statusCode, content));
   }
   
   // protected methods
   
   @Override
   protected LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
+    this.request_method = method;
+    this.request_path = new GenericUrl(url).getRawPath();
+    
     return new MockLowLevelHttpRequest(url) {
 
       @Override
@@ -44,24 +52,43 @@ public class MockTransport extends MockHttpTransport {
       }
       
       private int statusCode() {
-        if (responses.containsKey(path())) {
-          return responses.get(path()).statusCode;
-        }
-        return 400;
+        return generateResponse().statusCode;
       }
 
       private String content() {
-        if (responses.containsKey(path())) {
-          return responses.get(path()).content;
-        }
-        return "";
-      }
-
-      private String path() {
-        return new GenericUrl(getUrl()).getRawPath();
+        return generateResponse().content;
       }
       
     };
+  }
+  
+  // private methods
+  
+  private Response defaultResponse() {
+    return new Response(400, "");
+  }
+  
+  private Response generateResponse() {
+    if (pathAvailableForMethod()) {
+      return responseOfPathForMethod();
+    }
+    return defaultResponse();
+  }
+  
+  private boolean pathAvailableForMethod() {
+    return responsesFor(request_method).containsKey(request_path);
+  }
+  
+  private Response responseOfPathForMethod() {
+    return responsesFor(request_method).get(request_path);
+  }
+  
+  private HashMap<String, Response> responsesFor(String method) {
+    if ("GET".equals(method))    { return getResponses; }
+    if ("POST".equals(method))   { return postResponses; }
+    if ("PUT".equals(method))    { return putResponses; }
+    if ("DELETE".equals(method)) { return deleteResponses; }
+    return null;
   }
   
   // internal classes
