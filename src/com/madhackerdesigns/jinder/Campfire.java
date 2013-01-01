@@ -66,10 +66,7 @@ public class Campfire {
   public SortedSet<User> users() throws IOException {
     SortedSet<User> users = new ConcurrentSkipListSet<User>();
     for (Room room : rooms()) {
-//      users.addAll(room.users());
-      for (User user : room.users()) {
-        users.add(user);
-      }
+      users.addAll(room.users());
     }
     return users;
   }
