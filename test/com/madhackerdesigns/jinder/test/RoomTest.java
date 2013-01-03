@@ -1,6 +1,7 @@
 package com.madhackerdesigns.jinder.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -151,12 +152,41 @@ public class RoomTest extends JinderTest {
   }
   
   @Test
+  public void cachesFoundUserUntilNextReload() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
+    campfire.connection().setHttpTransport(mockTransport);
+    User user = room.user(3);
+    assertEquals("Jimmy Doe", user.name());
+    campfire.connection().setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80749.json")));
+    user = room.user(3);
+    List<User> users = room.users();
+    assertFalse(users.contains(user));
+  }
+  
+  @Test
   public void getsTranscriptForSpecificDate() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json")));
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json"));
+    campfire.connection().setHttpTransport(mockTransport);
     Calendar date = Calendar.getInstance();
     date.set(2013, 1, 2);
     List<Message> messages = room.transcript(date);
     assertEquals("Lol", messages.get(1).body);
+  }
+  
+  @Test
+  public void setsUserForAllMessagesInTranscript() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json"));
+    campfire.connection().setHttpTransport(mockTransport);
+    Calendar date = Calendar.getInstance();
+    date.set(2013, 1, 2);
+    Message message = room.transcript(date).get(0);
+    assertEquals("John Doe", message.user().name());
   }
 
 }

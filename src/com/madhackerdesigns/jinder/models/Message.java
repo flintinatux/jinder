@@ -1,7 +1,6 @@
 package com.madhackerdesigns.jinder.models;
 
 import com.google.api.client.util.Key;
-import com.madhackerdesigns.jinder.Room;
 
 public class Message {
 
@@ -17,7 +16,7 @@ public class Message {
   
   // static and instance fields
   
-  private Room room;
+  private User user;
   
   // constructors
   
@@ -30,8 +29,12 @@ public class Message {
   
   // public methods
   
-  public void setRoom(Room room) {
-    this.room = room;
+  public void setUser(User user) {
+    this.user = user;
+  }
+  
+  public User user() {
+    return user;
   }
   
 }

@@ -120,7 +120,7 @@ public class Room extends GenericJson {
   public List<Message> transcript(Calendar date) throws IOException {
     List<Message> messages = get(transcriptPath(date)).parseAs(MessageList.class).messages;
     for (Message message : messages) {
-      message.setRoom(this);
+      message.setUser(user(message.user_id));
     }
     return messages;
   }
@@ -133,20 +133,22 @@ public class Room extends GenericJson {
     return post("unlock", null);
   }
   
-  public List<User> users() throws IOException {
-    reload();
-    return users;
-  }
-  
   public User user(long id) throws IOException {
+    load();
     User found = null;
-    for (User user : users()) {
+    for (User user : users) {
       if(user.id() == id) { found = user; }
     }
     if (found == null) {
       found = connection.get(userPath(id)).parseAs(SingleUser.class).user;
+      users.add(found);
     }
     return found;
+  }
+  
+  public List<User> users() throws IOException {
+    reload();
+    return users;
   }
   
   // private methods
