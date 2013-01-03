@@ -6,7 +6,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.madhackerdesigns.jinder.models.RoomList;
-import com.madhackerdesigns.jinder.models.Self;
+import com.madhackerdesigns.jinder.models.SingleUser;
 import com.madhackerdesigns.jinder.models.User;
 
 
@@ -52,7 +52,7 @@ public class Campfire {
   }
   
   public User me() throws IOException {
-    return connection.get("/users/me.json").parseAs(Self.class).user;
+    return connection.get("/users/me.json").parseAs(SingleUser.class).user;
   }
   
   public List<Room> rooms() throws IOException {

@@ -1,6 +1,7 @@
 package com.madhackerdesigns.jinder;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 import com.google.api.client.http.GenericUrl;
@@ -8,8 +9,10 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 import com.madhackerdesigns.jinder.models.Message;
-import com.madhackerdesigns.jinder.models.MessageDetails;
-import com.madhackerdesigns.jinder.models.RoomDetails;
+import com.madhackerdesigns.jinder.models.MessageList;
+import com.madhackerdesigns.jinder.models.SingleMessage;
+import com.madhackerdesigns.jinder.models.SingleRoom;
+import com.madhackerdesigns.jinder.models.SingleUser;
 import com.madhackerdesigns.jinder.models.User;
 
 public class Room extends GenericJson {
@@ -66,8 +69,16 @@ public class Room extends GenericJson {
   }
   
   public HttpResponse leave() throws IOException {
+    // stopListening();
     return post("leave", null);
   }
+  
+//  public void listen() throws IOException {
+//    HttpResponse response = null;
+//    InputStream stream = response.getContent();
+//    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+//    reader.readLine();
+//  }
   
   public HttpResponse lock() throws IOException {
     return post("lock", null);
@@ -106,6 +117,14 @@ public class Room extends GenericJson {
     return topic;
   }
   
+  public List<Message> transcript(Calendar date) throws IOException {
+    List<Message> messages = get(transcriptPath(date)).parseAs(MessageList.class).messages;
+    for (Message message : messages) {
+      message.setRoom(this);
+    }
+    return messages;
+  }
+  
   public HttpResponse tweet(String url) throws IOException {
     return sendMessage(url, "TweetMessage");
   }
@@ -119,14 +138,29 @@ public class Room extends GenericJson {
     return users;
   }
   
+  public User user(long id) throws IOException {
+    User found = null;
+    for (User user : users()) {
+      if(user.id() == id) { found = user; }
+    }
+    if (found == null) {
+      found = connection.get(userPath(id)).parseAs(SingleUser.class).user;
+    }
+    return found;
+  }
+  
   // private methods
+  
+  private HttpResponse get(String action) throws IOException {
+    return connection.get(roomUrlFor(action));
+  }
   
   private void load() throws IOException {
     if (!loaded) { reload(); }
   }
   
   private void reload() throws IOException {
-    Room room = connection.get(roomPath()).parseAs(RoomDetails.class).room;
+    Room room = connection.get(roomPath()).parseAs(SingleRoom.class).room;
     this.putAll(room);
     loaded = true;
   }
@@ -144,15 +178,23 @@ public class Room extends GenericJson {
   }
   
   private HttpResponse sendMessage(String message, String type) throws IOException {
-    MessageDetails newMessage = new MessageDetails();
+    SingleMessage newMessage = new SingleMessage();
     newMessage.message = new Message(message, type);
     return connection.post(roomUrlFor("speak"), newMessage);
   }
   
+  private String transcriptPath(Calendar date) {
+    return "transcript/" + date.get(Calendar.YEAR) + "/" + date.get(Calendar.MONTH) + "/" + date.get(Calendar.DAY_OF_MONTH);
+  }
+  
   private HttpResponse update(String name, String topic) throws IOException {
-    RoomDetails updatedRoom = new RoomDetails();
+    SingleRoom updatedRoom = new SingleRoom();
     updatedRoom.room = new Room(name, topic);
     return connection.put(roomPath(), updatedRoom);
+  }
+  
+  private String userPath(long id) {
+    return "/users/" + id + ".json";
   }
 
 }

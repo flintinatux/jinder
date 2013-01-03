@@ -16,7 +16,7 @@ import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.gson.GsonFactory;
-import com.madhackerdesigns.jinder.models.Self;
+import com.madhackerdesigns.jinder.models.SingleUser;
 
 public class Connection {
 
@@ -89,7 +89,7 @@ public class Connection {
 
   public String token() throws IOException {
     if (token == null) {
-      Self self = get("/users/me.json").parseAs(Self.class);
+      SingleUser self = get("/users/me.json").parseAs(SingleUser.class);
       token = self.user.api_auth_token;
     }
     return token;

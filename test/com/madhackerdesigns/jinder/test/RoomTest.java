@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import com.google.api.client.http.GenericUrl;
 import com.madhackerdesigns.jinder.Campfire;
 import com.madhackerdesigns.jinder.Room;
+import com.madhackerdesigns.jinder.models.Message;
+import com.madhackerdesigns.jinder.models.User;
 import com.madhackerdesigns.jinder.test.helpers.MockTransport;
 
 public class RoomTest extends JinderTest {
@@ -128,6 +132,31 @@ public class RoomTest extends JinderTest {
   public void postsToTweetTheUrl() throws IOException {
     campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
     room.tweet("http://madhackerdesigns.com");
+  }
+  
+  @Test
+  public void findsUserByIdInRoomCache() throws IOException {
+    User user = room.user(2);
+    assertEquals("John Doe", user.name());
+  }
+  
+  @Test
+  public void findsUserByIdFromApi() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
+    campfire.connection().setHttpTransport(mockTransport);
+    User user = room.user(3);
+    assertEquals("Jimmy Doe", user.name());
+  }
+  
+  @Test
+  public void getsTranscriptForSpecificDate() throws IOException {
+    campfire.connection().setHttpTransport(new MockTransport("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json")));
+    Calendar date = Calendar.getInstance();
+    date.set(2013, 1, 2);
+    List<Message> messages = room.transcript(date);
+    assertEquals("Lol", messages.get(1).body);
   }
 
 }
