@@ -26,10 +26,6 @@ public class Campfire {
   
   // public methods
   
-  public Connection connection() {
-    return connection;
-  }
-  
   public Room findRoomById(long id) throws IOException {
     for (Room room : rooms()) {
       if (id == room.id) { return room; }
@@ -69,6 +65,12 @@ public class Campfire {
       users.addAll(room.users());
     }
     return users;
+  }
+  
+  // protected methods
+  
+  protected Connection connection() {
+    return connection;
   }
 
 }

@@ -1,4 +1,4 @@
-package com.madhackerdesigns.jinder.test;
+package com.madhackerdesigns.jinder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.madhackerdesigns.jinder.Campfire;
 import com.madhackerdesigns.jinder.Room;
 import com.madhackerdesigns.jinder.models.User;
+import com.madhackerdesigns.jinder.test.JinderTest;
 import com.madhackerdesigns.jinder.test.helpers.MockTransport;
 
 public class CampfireTest extends JinderTest {
