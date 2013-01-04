@@ -188,5 +188,15 @@ public class RoomTest extends JinderTest {
     Message message = room.transcript(date).get(0);
     assertEquals("John Doe", message.user().name());
   }
+  
+  @Test
+  public void searchesForTermWithEncodesString() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("GET", "/search?q=kittenz%20rule!&format=json", 200, fixture("message_list.json"));
+    campfire.connection().setHttpTransport(mockTransport);
+    List<Message> messages = room.search("kittenz rule!");
+    assertEquals("Lol", messages.get(1).body);
+  }
 
 }

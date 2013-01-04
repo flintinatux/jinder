@@ -1,9 +1,11 @@
 package com.madhackerdesigns.jinder.test.helpers;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 
-import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.LowLevelHttpRequest;
 import com.google.api.client.http.LowLevelHttpResponse;
 import com.google.api.client.testing.http.MockHttpTransport;
@@ -16,8 +18,8 @@ public class MockTransport extends MockHttpTransport {
   private HashMap<String, Response> postResponses = new HashMap<String, Response>();
   private HashMap<String, Response> putResponses = new HashMap<String, Response>();
   private HashMap<String, Response> deleteResponses = new HashMap<String, Response>();
-  private String request_method;
-  private String request_path;
+  private String requestMethod;
+  private String requestPath;
   
   // constructors
   
@@ -38,8 +40,23 @@ public class MockTransport extends MockHttpTransport {
   
   @Override
   protected LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
-    this.request_method = method;
-    this.request_path = new GenericUrl(url).getRawPath();
+    this.requestMethod = method;
+    URL parsedUrl = new URL(url);
+    URI uri = null;
+    try {
+      uri = new URI(parsedUrl.getProtocol(), parsedUrl.getUserInfo(), parsedUrl.getHost(), parsedUrl.getPort(), parsedUrl.getPath(), parsedUrl.getQuery(), parsedUrl.getRef());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    if (uri != null) {
+      this.requestPath = uri.getPath(); 
+      if (uri.getQuery() != null) {
+        this.requestPath += "?" + uri.getQuery();
+      }
+      if (uri.getFragment() != null) {
+        this.requestPath += "#" + uri.getFragment();
+      }
+    } 
     
     return new MockLowLevelHttpRequest(url) {
 
@@ -76,11 +93,11 @@ public class MockTransport extends MockHttpTransport {
   }
   
   private boolean pathAvailableForMethod() {
-    return responsesFor(request_method).containsKey(request_path);
+    return responsesFor(requestMethod).containsKey(requestPath);
   }
   
   private Response responseOfPathForMethod() {
-    return responsesFor(request_method).get(request_path);
+    return responsesFor(requestMethod).get(requestPath);
   }
   
   private HashMap<String, Response> responsesFor(String method) {

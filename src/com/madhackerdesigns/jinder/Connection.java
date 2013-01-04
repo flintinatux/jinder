@@ -1,6 +1,8 @@
 package com.madhackerdesigns.jinder;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
@@ -97,8 +99,16 @@ public class Connection {
   
   // protected methods
   
-  protected GenericUrl urlFor(String path) {
-    return new GenericUrl(uri() + path);
+  protected GenericUrl urlFor(String path) throws IOException {
+    URI uri;
+    try {
+      URL url = new URL(baseUri() + path);
+      uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IOException("URISyntaxException caught.");
+    }
+    return new GenericUrl(uri.toString());
   }
   
   // private methods
@@ -148,7 +158,7 @@ public class Connection {
     };
   }
 
-  private String uri() {
+  private String baseUri() {
     return (ssl() ? "https" : "http") + "://" + subdomain + "." + HOST;
   }
   

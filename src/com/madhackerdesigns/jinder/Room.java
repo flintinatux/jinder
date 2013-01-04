@@ -96,8 +96,8 @@ public class Room extends GenericJson {
     return sendMessage(sound, "SoundMessage");
   }
   
-  public void setConnection(Connection connection) {
-    this.connection = connection;
+  public List<Message> search(String term) throws IOException {
+    return connection.get("/search?q=" + term + "&format=json").parseAs(MessageList.class).messages;
   }
   
   public HttpResponse setName(String name) throws IOException {
@@ -149,6 +149,12 @@ public class Room extends GenericJson {
   public List<User> users() throws IOException {
     reload();
     return users;
+  }
+  
+  // protected methods
+
+  protected void setConnection(Connection connection) {
+    this.connection = connection;
   }
   
   // private methods
