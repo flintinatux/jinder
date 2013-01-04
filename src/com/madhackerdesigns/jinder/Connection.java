@@ -36,18 +36,18 @@ public class Connection {
   
   // constructors
   
-  public Connection(String subdomain, String token) {
+  protected Connection(String subdomain, String token) {
     this.subdomain = subdomain;
     this.token = token;
   }
 
-  public Connection(String subdomain, String username, String password) {
+  protected Connection(String subdomain, String username, String password) {
     this.subdomain = subdomain;
     this.username = username;
     this.password = password;
   }
   
-  // public methods
+  // protected methods
   
   protected static void clearConnection() {
     connection = null;
@@ -96,8 +96,6 @@ public class Connection {
     }
     return token;
   }
-  
-  // protected methods
   
   protected GenericUrl urlFor(String path) throws IOException {
     URI uri;

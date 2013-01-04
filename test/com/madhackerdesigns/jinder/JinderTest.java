@@ -8,7 +8,7 @@ import com.google.common.io.Files;
 
 public class JinderTest {
 
-  private static final String fixturePath = "test/com/madhackerdesigns/jinder/test/fixtures";
+  private static final String fixturePath = "test/com/madhackerdesigns/jinder/fixtures";
   
   public static String fixture(String filename) throws IOException {
     return Files.toString(new File(fixturePath, filename), Charsets.UTF_8);

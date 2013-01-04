@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.google.api.client.http.HttpResponseException;
 import com.madhackerdesigns.jinder.Connection;
-import com.madhackerdesigns.jinder.test.helpers.MockTransport;
+import com.madhackerdesigns.jinder.helpers.MockTransport;
 
 public class ConnectionTest extends JinderTest {
 

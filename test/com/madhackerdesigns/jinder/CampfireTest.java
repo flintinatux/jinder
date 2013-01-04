@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import com.madhackerdesigns.jinder.Campfire;
 import com.madhackerdesigns.jinder.Room;
+import com.madhackerdesigns.jinder.helpers.MockTransport;
 import com.madhackerdesigns.jinder.models.User;
-import com.madhackerdesigns.jinder.test.helpers.MockTransport;
 
 public class CampfireTest extends JinderTest {
   

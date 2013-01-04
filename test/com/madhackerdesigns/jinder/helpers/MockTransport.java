@@ -1,4 +1,4 @@
-package com.madhackerdesigns.jinder.test.helpers;
+package com.madhackerdesigns.jinder.helpers;
 
 import java.io.IOException;
 import java.net.URI;
