@@ -1,4 +1,4 @@
-package com.madhackerdesigns.jinder.test;
+package com.madhackerdesigns.jinder;
 
 import java.io.File;
 import java.io.IOException;

@@ -49,47 +49,47 @@ public class Connection {
   
   // public methods
   
-  public static void clearConnection() {
+  protected static void clearConnection() {
     connection = null;
   }
   
-  public void disableSSL() {
+  protected void disableSSL() {
     ssl = false;
   }
   
-  public void enableSSL() {
+  protected void enableSSL() {
     ssl = true;
   }
   
-  public HttpResponse get(String path) throws IOException {
+  protected HttpResponse get(String path) throws IOException {
     return connection().buildGetRequest(urlFor(path)).execute();
   }
   
-  public HttpResponse post(String path, Object object) throws IOException {
+  protected HttpResponse post(String path, Object object) throws IOException {
     return connection().buildPostRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
-  public HttpResponse put(String path, Object object) throws IOException {
+  protected HttpResponse put(String path, Object object) throws IOException {
     return connection().buildPutRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
-  public void setHttpTransport(HttpTransport httpTransport) {
+  protected void setHttpTransport(HttpTransport httpTransport) {
     Connection.httpTransport = httpTransport;
     clearConnection();
   }
   
-  public void setJsonFactory(JsonFactory jsonFactory) {
+  protected void setJsonFactory(JsonFactory jsonFactory) {
     Connection.jsonFactory = jsonFactory;
   }
 
-  public Boolean ssl() {
+  protected Boolean ssl() {
     if (ssl == null) {
       ssl = true;
     }
     return ssl;
   }
 
-  public String token() throws IOException {
+  protected String token() throws IOException {
     if (token == null) {
       SingleUser self = get("/users/me.json").parseAs(SingleUser.class);
       token = self.user.api_auth_token;

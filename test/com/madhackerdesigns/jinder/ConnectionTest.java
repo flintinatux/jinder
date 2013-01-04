@@ -1,4 +1,4 @@
-package com.madhackerdesigns.jinder.test;
+package com.madhackerdesigns.jinder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
