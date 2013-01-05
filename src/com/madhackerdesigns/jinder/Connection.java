@@ -61,8 +61,19 @@ public class Connection {
     ssl = true;
   }
   
+  protected JsonFactory jsonFactory() {
+    if (jsonFactory == null) {
+      jsonFactory = new GsonFactory();
+    }
+    return jsonFactory;
+  }
+  
   protected HttpResponse get(String path) throws IOException {
     return connection().buildGetRequest(urlFor(path)).execute();
+  }
+  
+  protected HttpResponse getStreamForRoom(long roomId) throws IOException {
+    return connection().buildGetRequest(streamUrlFor(roomId)).execute();
   }
   
   protected HttpResponse post(String path, Object object) throws IOException {
@@ -110,6 +121,10 @@ public class Connection {
   }
   
   // private methods
+
+  private String baseUri() {
+    return (ssl() ? "https" : "http") + "://" + subdomain + "." + HOST;
+  }
   
   private HttpExecuteInterceptor basicAuthentication() throws IOException {
     if (token == null) {
@@ -137,13 +152,6 @@ public class Connection {
     if (object == null) { return null; }
     return new JsonHttpContent(jsonFactory(), object);
   }
-  
-  private JsonFactory jsonFactory() {
-    if (jsonFactory == null) {
-      jsonFactory = new GsonFactory();
-    }
-    return jsonFactory;
-  }
 
   private HttpRequestInitializer setConnectionOptions() {
     return new HttpRequestInitializer() {
@@ -155,9 +163,9 @@ public class Connection {
       }
     };
   }
-
-  private String baseUri() {
-    return (ssl() ? "https" : "http") + "://" + subdomain + "." + HOST;
+  
+  private GenericUrl streamUrlFor(long roomId) {
+    return new GenericUrl("https://streaming.campfirenow.com/room/" + roomId + "/live.json");
   }
   
 }

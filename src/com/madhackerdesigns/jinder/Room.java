@@ -1,12 +1,19 @@
 package com.madhackerdesigns.jinder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.GenericJson;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.JsonParser;
 import com.google.api.client.util.Key;
 import com.madhackerdesigns.jinder.models.Message;
 import com.madhackerdesigns.jinder.models.MessageList;
@@ -35,6 +42,8 @@ public class Room extends GenericJson {
   
   private Connection connection;
   private boolean loaded;
+  private Logger logger;
+  private BufferedReader reader;
   
   // constructors
   
@@ -73,12 +82,16 @@ public class Room extends GenericJson {
     return post("leave", null);
   }
   
-//  public void listen() throws IOException {
-//    HttpResponse response = null;
-//    InputStream stream = response.getContent();
-//    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-//    reader.readLine();
-//  }
+  public void listen(Listener listener) throws IOException {
+    JsonParser parser;
+    String nextLine = reader().readLine().trim();
+    while(notEmpty(nextLine)) {
+        logger().log(Level.INFO, nextLine);
+        parser = jsonFactory().createJsonParser(nextLine);
+        listener.handleNewMessage(parser.parseAndClose(Message.class, null));
+        nextLine = reader().readLine().trim();
+    }
+  }
   
   public HttpResponse lock() throws IOException {
     return post("lock", null);
@@ -168,8 +181,31 @@ public class Room extends GenericJson {
     return connection.get(roomUrlFor(action));
   }
   
+  private JsonFactory jsonFactory() {
+    return connection.jsonFactory();
+  }
+  
   private void load() throws IOException {
     if (!loaded) { reload(); }
+  }
+  
+  private Logger logger() {
+    if (logger == null) {
+      logger = Logger.getLogger("com.madhackerdesigns.jinder");
+    }
+    return logger;
+  }
+  
+  private boolean notEmpty(String string) {
+    return string != null && ! string.equals("");
+  }
+  
+  private BufferedReader reader() throws IOException {
+    if (reader == null) {
+      InputStream stream = connection.getStreamForRoom(id).getContent();
+      reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+    }
+    return reader;
   }
   
   private void reload() throws IOException {

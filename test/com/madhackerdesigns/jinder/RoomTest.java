@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,6 +26,9 @@ public class RoomTest extends JinderTest {
   
   private static Campfire campfire;
   private static Room room;
+  
+  private int listenCount = 0;
+  private Logger logger = Logger.getLogger("jinder");
 
   @BeforeClass
   public static void loadNewCampfire() throws IOException {
@@ -196,6 +201,26 @@ public class RoomTest extends JinderTest {
     List<Message> messages = room.recent();
     messages = room.recent(42);
     assertEquals("Lol", messages.get(1).body);
+  }
+  
+  @Test
+  public void listensToStreamingMessagesFromRoom() throws IOException {
+    campfire.setHttpTransport(new MockTransport("GET", "/room/80749/live.json", 200, fixture("streaming.json")));
+    try {
+      room.listen(new Listener() {
+
+        @Override
+        public void handleNewMessage(Message message) {
+          assertFalse(message.starred);
+          logger.log(Level.INFO, message.body);
+          listenCount++;
+        }
+        
+      });
+    } finally {
+      assertEquals(8, listenCount);
+    }
+    
   }
 
 }

@@ -9,7 +9,7 @@ public class Message {
   @Key public long id;
   @Key public String body;
   @Key public long room_id;
-  @Key public long user_id;
+  @Key public Long user_id;
   @Key public String created_at;
   @Key public String type;
   @Key public boolean starred;
