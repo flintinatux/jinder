@@ -118,11 +118,7 @@ public class Room extends GenericJson {
   }
   
   public List<Message> transcript(Calendar date) throws IOException {
-    List<Message> messages = get(transcriptPath(date)).parseAs(MessageList.class).messages;
-    for (Message message : messages) {
-      message.setUser(user(message.user_id));
-    }
-    return messages;
+    return get(transcriptPath(date)).parseAs(MessageList.class).messages;
   }
   
   public HttpResponse tweet(String url) throws IOException {

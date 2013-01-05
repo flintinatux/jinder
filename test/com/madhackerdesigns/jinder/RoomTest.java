@@ -35,19 +35,19 @@ public class RoomTest extends JinderTest {
     MockTransport mockTransport = new MockTransport();
     mockTransport.addResponse("GET", "/rooms.json", 200, fixture("rooms.json"));
     mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
-    campfire.connection().setHttpTransport(mockTransport);
+    campfire.setHttpTransport(mockTransport);
     room = campfire.findRoomById(80749);
   }
   
   @Test
   public void postsToJoinUrl() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/join.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/join.json", 200, ""));
     room.join();
   }
   
   @Test
   public void postsToLeaveUrl() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/leave.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/leave.json", 200, ""));
     room.leave();
   }
   
@@ -76,14 +76,14 @@ public class RoomTest extends JinderTest {
   
   @Test
   public void putsToUpdateTheRoomName() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("PUT", "/room/80749.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("PUT", "/room/80749.json", 200, ""));
     room.setName("Foo");
     room.rename("Bar");
   }
   
   @Test
   public void putsToUpdateTheRoomTopic() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("PUT", "/room/80749.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("PUT", "/room/80749.json", 200, ""));
     room.setTopic("New topic");
   }
   
@@ -95,43 +95,43 @@ public class RoomTest extends JinderTest {
   @Test
   public void getsTopicEvenIfItsChanged() throws IOException {
     assertEquals("Testing", room.topic());
-    campfire.connection().setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80751.json")));
+    campfire.setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80751.json")));
     assertEquals("Testing 2", room.topic());
   }
   
   @Test
   public void postsToLockTheRoom() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/lock.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/lock.json", 200, ""));
     room.lock();
   }
   
   @Test
   public void postsToUnlockTheRoom() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/unlock.json", 200, ""));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/unlock.json", 200, ""));
     room.unlock();
   }
   
   @Test
   public void postsToSpeakMessage() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
     room.speak("Hello");
   }
   
   @Test
   public void postsToPasteMessage() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
     room.paste("Hello\nWorld!");
   }
   
   @Test
   public void postsToPlaySound() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
     room.play("trombone");
   }
   
   @Test
   public void postsToTweetTheUrl() throws IOException {
-    campfire.connection().setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
+    campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
     room.tweet("http://madhackerdesigns.com");
   }
   
@@ -146,7 +146,7 @@ public class RoomTest extends JinderTest {
     MockTransport mockTransport = new MockTransport();
     mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
     mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
-    campfire.connection().setHttpTransport(mockTransport);
+    campfire.setHttpTransport(mockTransport);
     User user = room.user(3);
     assertEquals("Jimmy Doe", user.name());
   }
@@ -156,10 +156,10 @@ public class RoomTest extends JinderTest {
     MockTransport mockTransport = new MockTransport();
     mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
     mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
-    campfire.connection().setHttpTransport(mockTransport);
+    campfire.setHttpTransport(mockTransport);
     User user = room.user(3);
     assertEquals("Jimmy Doe", user.name());
-    campfire.connection().setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80749.json")));
+    campfire.setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80749.json")));
     user = room.user(3);
     List<User> users = room.users();
     assertFalse(users.contains(user));
@@ -170,7 +170,7 @@ public class RoomTest extends JinderTest {
     MockTransport mockTransport = new MockTransport();
     mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
     mockTransport.addResponse("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json"));
-    campfire.connection().setHttpTransport(mockTransport);
+    campfire.setHttpTransport(mockTransport);
     Calendar date = Calendar.getInstance();
     date.set(2013, 1, 2);
     List<Message> messages = room.transcript(date);
@@ -178,23 +178,11 @@ public class RoomTest extends JinderTest {
   }
   
   @Test
-  public void setsUserForAllMessagesInTranscript() throws IOException {
-    MockTransport mockTransport = new MockTransport();
-    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
-    mockTransport.addResponse("GET", "/room/80749/transcript/2013/1/2.json", 200, fixture("message_list.json"));
-    campfire.connection().setHttpTransport(mockTransport);
-    Calendar date = Calendar.getInstance();
-    date.set(2013, 1, 2);
-    Message message = room.transcript(date).get(0);
-    assertEquals("John Doe", message.user().name());
-  }
-  
-  @Test
   public void searchesForTermWithEncodesString() throws IOException {
     MockTransport mockTransport = new MockTransport();
     mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
     mockTransport.addResponse("GET", "/search?q=kittenz%20rule!&format=json", 200, fixture("message_list.json"));
-    campfire.connection().setHttpTransport(mockTransport);
+    campfire.setHttpTransport(mockTransport);
     List<Message> messages = room.search("kittenz rule!");
     assertEquals("Lol", messages.get(1).body);
   }

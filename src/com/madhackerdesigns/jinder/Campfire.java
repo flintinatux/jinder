@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.madhackerdesigns.jinder.models.RoomList;
 import com.madhackerdesigns.jinder.models.SingleUser;
 import com.madhackerdesigns.jinder.models.User;
@@ -59,6 +61,14 @@ public class Campfire {
     return rooms;
   }
   
+  public void setHttpTransport(HttpTransport httpTransport) {
+    connection.setHttpTransport(httpTransport);
+  }
+  
+  public void setJsonFactory(JsonFactory jsonFactory) {
+    connection.setJsonFactory(jsonFactory);
+  }
+  
   public SortedSet<User> users() throws IOException {
     SortedSet<User> users = new ConcurrentSkipListSet<User>();
     for (Room room : rooms()) {
@@ -67,10 +77,4 @@ public class Campfire {
     return users;
   }
   
-  // protected methods
-  
-  protected Connection connection() {
-    return connection;
-  }
-
 }
