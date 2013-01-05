@@ -186,5 +186,16 @@ public class RoomTest extends JinderTest {
     List<Message> messages = room.search("kittenz rule!");
     assertEquals("Lol", messages.get(1).body);
   }
+  
+  @Test
+  public void getsRecentMessages() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749/recent.json", 200, fixture("message_list.json"));
+    mockTransport.addResponse("GET", "/room/80749/recent.json?since_message_id=42", 200, fixture("message_list.json"));
+    campfire.setHttpTransport(mockTransport);
+    List<Message> messages = room.recent();
+    messages = room.recent(42);
+    assertEquals("Lol", messages.get(1).body);
+  }
 
 }

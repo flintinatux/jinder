@@ -96,6 +96,15 @@ public class Room extends GenericJson {
     return sendMessage(sound, "SoundMessage");
   }
   
+  public List<Message> recent() throws IOException {
+    return get("recent").parseAs(MessageList.class).messages;
+  }
+  
+  public List<Message> recent(long sinceMessageId) throws IOException {
+    String recentUrl = roomUrlFor("recent") + "?since_message_id=" + sinceMessageId;
+    return connection.get(recentUrl).parseAs(MessageList.class).messages;
+  }
+  
   public List<Message> search(String term) throws IOException {
     return connection.get("/search?q=" + term + "&format=json").parseAs(MessageList.class).messages;
   }
