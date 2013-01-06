@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.google.api.client.http.GenericUrl;
 import com.madhackerdesigns.jinder.helpers.MockTransport;
 import com.madhackerdesigns.jinder.models.Message;
+import com.madhackerdesigns.jinder.models.Upload;
 import com.madhackerdesigns.jinder.models.User;
 
 public class RoomTest extends JinderTest {
@@ -194,6 +195,14 @@ public class RoomTest extends JinderTest {
     List<Message> messages = room.recent();
     messages = room.recent(42);
     assertEquals("Lol", messages.get(1).body);
+  }
+  
+  @Test
+  public void getsUploadedFiles() throws IOException {
+    campfire.setHttpTransport(new MockTransport("GET", "/room/80749/uploads.json", 200, fixture("uploads.json")));
+    List<Upload> uploads = room.files();
+    assertEquals(3, uploads.size());
+    assertEquals("next_version.rb", uploads.get(1).name);
   }
 
 }

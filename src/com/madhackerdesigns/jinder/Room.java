@@ -14,6 +14,8 @@ import com.madhackerdesigns.jinder.models.MessageList;
 import com.madhackerdesigns.jinder.models.SingleMessage;
 import com.madhackerdesigns.jinder.models.SingleRoom;
 import com.madhackerdesigns.jinder.models.SingleUser;
+import com.madhackerdesigns.jinder.models.Upload;
+import com.madhackerdesigns.jinder.models.UploadList;
 import com.madhackerdesigns.jinder.models.User;
 
 public class Room extends GenericJson {
@@ -48,6 +50,10 @@ public class Room extends GenericJson {
   }
   
   // public methods
+  
+  public List<Upload> files() throws IOException {
+    return get("uploads").parseAs(UploadList.class).uploads();
+  }
   
   public boolean guestAccessEnabled() throws IOException {
     load();
