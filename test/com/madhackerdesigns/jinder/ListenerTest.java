@@ -57,7 +57,7 @@ public class ListenerTest extends JinderTest {
       @Override
       public void handleNewMessage(Message message) {
         listenCount++;
-        if (listenCount == 6) { stop(); }
+        if (listenCount == 6) { room.stopListening(); }
       }
       
     };

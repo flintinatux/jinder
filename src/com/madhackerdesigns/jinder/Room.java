@@ -81,6 +81,10 @@ public class Room extends GenericJson {
     new Thread(listener).start();
   }
   
+  public boolean isListening() {
+    return listener != null;
+  }
+  
   public HttpResponse lock() throws IOException {
     return post("lock", null);
   }
@@ -129,8 +133,10 @@ public class Room extends GenericJson {
   }
   
   public void stopListening() {
-    if (listener != null) {
+    if (isListening()) {
+      connection.logger().log(Level.INFO, "Stopped listening to " + name + ".");
       listener.stop();
+      listener = null;
     }
   }
   
