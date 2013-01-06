@@ -28,7 +28,7 @@ public class RoomTest extends JinderTest {
   private static Room room;
   
   private int listenCount = 0;
-  private Logger logger = Logger.getLogger("jinder");
+  private Logger logger = Logger.getLogger("com.madhackerdesigns.jinder");
 
   @BeforeClass
   public static void loadNewCampfire() throws IOException {
@@ -206,21 +206,17 @@ public class RoomTest extends JinderTest {
   @Test
   public void listensToStreamingMessagesFromRoom() throws IOException {
     campfire.setHttpTransport(new MockTransport("GET", "/room/80749/live.json", 200, fixture("streaming.json")));
-    try {
-      room.listen(new Listener() {
+    room.listen(new Listener() {
 
-        @Override
-        public void handleNewMessage(Message message) {
-          assertFalse(message.starred);
-          logger.log(Level.INFO, message.body);
-          listenCount++;
-        }
-        
-      });
-    } finally {
-      assertEquals(8, listenCount);
-    }
-    
+      @Override
+      public void handleNewMessage(Message message) {
+        assertTrue(message.starred);
+        logger.log(Level.INFO, message.body);
+        System.out.println(message.body);
+        listenCount++;
+      }
+      
+    });
   }
 
 }
