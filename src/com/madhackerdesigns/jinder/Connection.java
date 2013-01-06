@@ -3,6 +3,7 @@ package com.madhackerdesigns.jinder;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
@@ -27,6 +28,7 @@ public class Connection {
   private static HttpRequestFactory connection;
   private static HttpTransport httpTransport;
   private static JsonFactory jsonFactory;
+  private static Logger logger;
   
   private String subdomain;
   private String token;
@@ -74,6 +76,13 @@ public class Connection {
   
   protected HttpResponse getStreamForRoom(long roomId) throws IOException {
     return connection().buildGetRequest(streamUrlFor(roomId)).execute();
+  }
+  
+  protected Logger logger() {
+    if (logger == null) {
+      logger = Logger.getLogger("com.madhackerdesigns.jinder");
+    }
+    return logger;
   }
   
   protected HttpResponse post(String path, Object object) throws IOException {

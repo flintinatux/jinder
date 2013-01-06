@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses({ConnectionTest.class, CampfireTest.class, RoomTest.class})
+@SuiteClasses({ConnectionTest.class, CampfireTest.class, RoomTest.class, ListenerTest.class})
 public class AllTests {
 
 }

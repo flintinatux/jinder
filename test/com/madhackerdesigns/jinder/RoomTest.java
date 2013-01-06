@@ -8,16 +8,12 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.api.client.http.GenericUrl;
-import com.madhackerdesigns.jinder.Campfire;
-import com.madhackerdesigns.jinder.Room;
 import com.madhackerdesigns.jinder.helpers.MockTransport;
 import com.madhackerdesigns.jinder.models.Message;
 import com.madhackerdesigns.jinder.models.User;
@@ -26,9 +22,6 @@ public class RoomTest extends JinderTest {
   
   private static Campfire campfire;
   private static Room room;
-  
-  private int listenCount = 0;
-  private Logger logger = Logger.getLogger("com.madhackerdesigns.jinder");
 
   @BeforeClass
   public static void loadNewCampfire() throws IOException {
@@ -201,22 +194,6 @@ public class RoomTest extends JinderTest {
     List<Message> messages = room.recent();
     messages = room.recent(42);
     assertEquals("Lol", messages.get(1).body);
-  }
-  
-  @Test
-  public void listensToStreamingMessagesFromRoom() throws IOException {
-    campfire.setHttpTransport(new MockTransport("GET", "/room/80749/live.json", 200, fixture("streaming.json")));
-    room.listen(new Listener() {
-
-      @Override
-      public void handleNewMessage(Message message) {
-        assertTrue(message.starred);
-        logger.log(Level.INFO, message.body);
-        System.out.println(message.body);
-        listenCount++;
-      }
-      
-    });
   }
 
 }

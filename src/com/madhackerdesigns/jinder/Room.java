@@ -3,6 +3,7 @@ package com.madhackerdesigns.jinder;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
@@ -34,6 +35,7 @@ public class Room extends GenericJson {
   // class and instance fields
   
   private Connection connection;
+  private Listener listener;
   private boolean loaded;
   
   // constructors
@@ -65,17 +67,17 @@ public class Room extends GenericJson {
   }
   
   public HttpResponse join() throws IOException {
+    connection.logger().log(Level.INFO, "Joining " + name + "...");
     return post("join", null);
   }
   
   public HttpResponse leave() throws IOException {
-    // stopListening();
+    stopListening();
     return post("leave", null);
   }
   
   public void listen(Listener listener) throws IOException {
-    listener.setConnection(connection);
-    listener.setRoomId(id);
+    setListener(listener);
     new Thread(listener).start();
   }
   
@@ -108,6 +110,12 @@ public class Room extends GenericJson {
     return connection.get("/search?q=" + term + "&format=json").parseAs(MessageList.class).messages;
   }
   
+  public void setListener(Listener listener) {
+    listener.setConnection(connection);
+    listener.setRoom(this);
+    this.listener = listener;
+  }
+  
   public HttpResponse setName(String name) throws IOException {
     return update(name, this.topic);
   }
@@ -118,6 +126,12 @@ public class Room extends GenericJson {
   
   public HttpResponse speak(String message) throws IOException {
     return sendMessage(message, "TextMessage");
+  }
+  
+  public void stopListening() {
+    if (listener != null) {
+      listener.stop();
+    }
   }
   
   public String topic() throws IOException {
