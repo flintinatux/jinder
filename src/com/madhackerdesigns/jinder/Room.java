@@ -1,10 +1,12 @@
 package com.madhackerdesigns.jinder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
+import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.GenericJson;
@@ -161,6 +163,11 @@ public class Room extends GenericJson {
   
   public HttpResponse unlock() throws IOException {
     return post("unlock", null);
+  }
+  
+  public HttpResponse upload(String contentType, File file) throws IOException {
+    // TODO: Not sure that this sets correct request params.
+    return connection.rawPost(roomUrlFor("uploads"), new FileContent(contentType, file));
   }
   
   public User user(long id) throws IOException {
