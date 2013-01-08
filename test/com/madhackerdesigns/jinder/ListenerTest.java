@@ -33,8 +33,8 @@ public class ListenerTest extends JinderTest {
   }
   
   @Test
-  public void listensToStreamingMessagesFromRoom() throws IOException, InterruptedException {
-    campfire.setHttpTransport(new MockTransport("GET", "/room/80749/live.json", 200, fixture("streaming.json")));
+  public void listensToStreamingMessagesFromRoom() throws IOException {
+    campfire.setHttpTransport(streamingTransport());
     Listener listener = new Listener() {
 
       @Override
@@ -42,7 +42,6 @@ public class ListenerTest extends JinderTest {
         assertEquals(false, message.starred);
         listenCount++;
       }
-      
     };
     room.setListener(listener);
     listener.connectAndListenToMessages();
@@ -51,7 +50,7 @@ public class ListenerTest extends JinderTest {
   
   @Test
   public void stopsListeningToRoom() throws IOException {
-    campfire.setHttpTransport(new MockTransport("GET", "/room/80749/live.json", 200, fixture("streaming.json")));
+    campfire.setHttpTransport(streamingTransport());
     Listener listener = new Listener() {
 
       @Override
@@ -59,11 +58,36 @@ public class ListenerTest extends JinderTest {
         listenCount++;
         if (listenCount == 6) { room.stopListening(); }
       }
-      
     };
     room.setListener(listener);
     listener.connectAndListenToMessages();
     assertEquals(6, listenCount);
+  }
+  
+  @Test
+  public void setsUserForEachMessageWhenListening() throws IOException {
+    campfire.setHttpTransport(streamingTransport());
+    Listener listener = new Listener() {
+      
+      @Override
+      public void handleNewMessage(Message message) {
+        listenCount++;
+        if (listenCount == 5) { assertEquals("Jimmy Doe", message.user().name()); }
+      }
+    };
+    room.setListener(listener);
+    listener.connectAndListenToMessages();
+  }
+  
+  // private methods
+  
+  private MockTransport streamingTransport() throws IOException {
+    MockTransport mockTransport = new MockTransport();
+    mockTransport.addResponse("GET", "/room/80749.json", 200, fixture("room_80749.json"));
+    mockTransport.addResponse("POST", "/room/80749/join.json", 200, "");
+    mockTransport.addResponse("GET", "/room/80749/live.json", 200, fixture("streaming.json"));
+    mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
+    return mockTransport;
   }
 
 }

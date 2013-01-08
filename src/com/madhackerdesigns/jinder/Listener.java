@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.Data;
 import com.madhackerdesigns.jinder.models.Message;
 
 public abstract class Listener implements Runnable {
@@ -22,7 +23,7 @@ public abstract class Listener implements Runnable {
 
   @Override
   public void run() {
-    connection.logger().log(Level.INFO, "Starting new Listener thread for " + room.name + "...");
+    connection.logger().log(Level.INFO, "Listening to " + room.name + "...");
     try {
       connectAndListenToMessages();
     } catch (IOException e) {
@@ -33,9 +34,10 @@ public abstract class Listener implements Runnable {
   // protected methods
   
   protected void connectAndListenToMessages() throws IOException {
+    room.join();
     String nextLine = readNextLine();
     while (listening && notEmpty(nextLine)) {
-      parseMessageFrom(nextLine);
+      parseAndHandleMessageFrom(nextLine);
       nextLine = readNextLine();
     }
   }
@@ -54,8 +56,11 @@ public abstract class Listener implements Runnable {
   
   // private methods
 
-  private void parseMessageFrom(String nextLine) throws IOException {
+  private void parseAndHandleMessageFrom(String nextLine) throws IOException {
     Message message = jsonFactory().createJsonParser(nextLine).parseAndClose(Message.class, null);
+    if (!Data.isNull(message.user_id)) {
+      message.setUser(room.user(message.user_id));
+    }
     handleNewMessage(message);
   }
   

@@ -7,7 +7,14 @@ import com.madhackerdesigns.jinder.Room;
 
 public class RoomList {
 
-  //Campfire API data model: Rooms
-  @Key public List<Room> rooms;
+  // Campfire API data model: Rooms
+  
+  @Key private List<Room> rooms;
+  
+  // public methods
+  
+  public List<Room> rooms() {
+    return rooms;
+  }
   
 }

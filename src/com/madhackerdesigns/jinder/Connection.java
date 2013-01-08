@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.ExponentialBackOffPolicy;
 import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -94,9 +93,9 @@ public class Connection {
     return connection().buildPutRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
-  protected HttpResponse rawPost(String path, HttpContent content) throws IOException {
-    return connection().buildPostRequest(urlFor(path), content).execute();
-  }
+//  protected HttpRequest rawPostRequest(String path, HttpContent content) throws IOException {
+//    return connection().buildPostRequest(urlFor(path), content);
+//  }
   
   protected void setHttpTransport(HttpTransport httpTransport) {
     Connection.httpTransport = httpTransport;

@@ -54,7 +54,7 @@ public class Campfire {
   }
   
   public List<Room> rooms() throws IOException {
-    List<Room> rooms = connection.get("/rooms.json").parseAs(RoomList.class).rooms;
+    List<Room> rooms = connection.get("/rooms.json").parseAs(RoomList.class).rooms();
     for (Room room : rooms) {
       room.setConnection(connection);
     }

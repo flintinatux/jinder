@@ -1,10 +1,13 @@
 package com.madhackerdesigns.jinder.helpers;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.api.client.http.LowLevelHttpRequest;
 import com.google.api.client.http.LowLevelHttpResponse;
@@ -13,6 +16,8 @@ import com.google.api.client.testing.http.MockLowLevelHttpRequest;
 import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 
 public class MockTransport extends MockHttpTransport {
+  
+  private static Logger logger = Logger.getAnonymousLogger();
 
   private HashMap<String, Response> getResponses = new HashMap<String, Response>();
   private HashMap<String, Response> postResponses = new HashMap<String, Response>();
@@ -20,6 +25,7 @@ public class MockTransport extends MockHttpTransport {
   private HashMap<String, Response> deleteResponses = new HashMap<String, Response>();
   private String requestMethod;
   private String requestPath;
+  private boolean logging = false;
   
   // constructors
   
@@ -36,27 +42,21 @@ public class MockTransport extends MockHttpTransport {
     responsesFor(method).put(expectedPath, new Response(statusCode, content));
   }
   
+  public void disableLogging() { 
+    logging = false;
+  }
+  
+  public void enableLogging() {
+    logging = true;
+  }
+  
   // protected methods
   
   @Override
   protected LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
-    this.requestMethod = method;
-    URL parsedUrl = new URL(url);
-    URI uri = null;
-    try {
-      uri = new URI(parsedUrl.getProtocol(), parsedUrl.getUserInfo(), parsedUrl.getHost(), parsedUrl.getPort(), parsedUrl.getPath(), parsedUrl.getQuery(), parsedUrl.getRef());
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    }
-    if (uri != null) {
-      this.requestPath = uri.getPath(); 
-      if (uri.getQuery() != null) {
-        this.requestPath += "?" + uri.getQuery();
-      }
-      if (uri.getFragment() != null) {
-        this.requestPath += "#" + uri.getFragment();
-      }
-    } 
+    requestMethod = method;
+    requestPath = pathFor(url); 
+    if (logging) { logger.log(Level.INFO, "Requested path: " + requestPath); }
     
     return new MockLowLevelHttpRequest(url) {
 
@@ -65,6 +65,7 @@ public class MockTransport extends MockHttpTransport {
         MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
         response.setStatusCode(statusCode());
         response.setContent(content());
+        if (logging) { logger.log(Level.INFO, "Response: " + statusCode() + ", " + content()); }
         return response;
       }
       
@@ -94,6 +95,25 @@ public class MockTransport extends MockHttpTransport {
   
   private boolean pathAvailableForMethod() {
     return responsesFor(requestMethod).containsKey(requestPath);
+  }
+
+  private String pathFor(String url) throws MalformedURLException {
+    URL parsedUrl = new URL(url);
+    URI uri = null;
+    try {
+      uri = new URI(parsedUrl.getProtocol(), parsedUrl.getUserInfo(), parsedUrl.getHost(), parsedUrl.getPort(), parsedUrl.getPath(), parsedUrl.getQuery(), parsedUrl.getRef());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      return null;
+    }
+    String path = uri.getPath(); 
+    if (uri.getQuery() != null) {
+      path += "?" + uri.getQuery();
+    }
+    if (uri.getFragment() != null) {
+      path += "#" + uri.getFragment();
+    }
+    return path;
   }
   
   private Response responseOfPathForMethod() {

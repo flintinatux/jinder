@@ -1,12 +1,10 @@
 package com.madhackerdesigns.jinder;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.GenericJson;
@@ -36,7 +34,7 @@ public class Room extends GenericJson {
   @Key public Boolean locked;
   @Key private List<User> users;
   
-  // class and instance fields
+  // instance fields
   
   private Connection connection;
   private Listener listener;
@@ -122,12 +120,6 @@ public class Room extends GenericJson {
     return connection.get("/search?q=" + term + "&format=json").parseAs(MessageList.class).messages;
   }
   
-  public void setListener(Listener listener) {
-    listener.setConnection(connection);
-    listener.setRoom(this);
-    this.listener = listener;
-  }
-  
   public HttpResponse setName(String name) throws IOException {
     return update(name, this.topic);
   }
@@ -165,11 +157,15 @@ public class Room extends GenericJson {
     return post("unlock", null);
   }
   
-  public HttpResponse upload(String contentType, File file) throws IOException {
-    // TODO: Not sure that this sets correct request params.
-    return connection.rawPost(roomUrlFor("uploads"), new FileContent(contentType, file));
-  }
-  
+//  public HttpResponse upload(File file, String filename, String contentType) throws IOException {
+//    FileContent uploadContent = new FileContent(contentType, file);
+//    HttpRequest request = connection.rawPostRequest(roomUrlFor("uploads"), uploadContent);
+//    HttpHeaders headers = new HttpHeaders();
+//    headers.put("Content-Disposition", "form-data; name=\"upload\"; filename=\"" + filename + "\"");
+//    request.setHeaders(headers);
+//    return request.execute();
+//  }
+
   public User user(long id) throws IOException {
     load();
     User found = null;
@@ -192,6 +188,12 @@ public class Room extends GenericJson {
 
   protected void setConnection(Connection connection) {
     this.connection = connection;
+  }
+  
+  protected void setListener(Listener listener) {
+    listener.setConnection(connection);
+    listener.setRoom(this);
+    this.listener = listener;
   }
   
   // private methods
