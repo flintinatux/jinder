@@ -23,11 +23,11 @@ public abstract class Listener implements Runnable {
 
   @Override
   public void run() {
-    connection.logger().log(Level.INFO, "Listening to " + room.name + "...");
+    log(Level.INFO, "Listening to " + room.name + "...");
     try {
       connectAndListenToMessages();
     } catch (IOException e) {
-      connection.logger().log(Level.WARNING, "Got disconnected from " + room.name + "!");
+      log(Level.WARNING, "Got disconnected from " + room.name + "!");
     }
   }
   
@@ -55,11 +55,15 @@ public abstract class Listener implements Runnable {
   }
   
   // private methods
+  
+  private void log(Level level, String message) {
+    connection.log(level, message);
+  }
 
   private void parseAndHandleMessageFrom(String nextLine) throws IOException {
     Message message = jsonFactory().createJsonParser(nextLine).parseAndClose(Message.class, null);
     if (!Data.isNull(message.user_id)) {
-      message.setUser(room.user(message.user_id));
+      message.user = room.user(message.user_id);
     }
     handleNewMessage(message);
   }

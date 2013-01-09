@@ -28,6 +28,14 @@ public class Campfire {
   
   // public methods
   
+  public void disableLogging() {
+    connection.disableLogging();
+  }
+  
+  public void enableLogging() {
+    connection.enableLogging();
+  }
+  
   public Room findRoomById(long id) throws IOException {
     for (Room room : rooms()) {
       if (id == room.id) { return room; }

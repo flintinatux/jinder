@@ -73,7 +73,7 @@ public class Room extends GenericJson {
   }
   
   public HttpResponse join() throws IOException {
-    connection.logger().log(Level.INFO, "Joining " + name + "...");
+    log(Level.INFO, "Joining " + name + "...");
     return post("join", null);
   }
   
@@ -134,7 +134,7 @@ public class Room extends GenericJson {
   
   public void stopListening() {
     if (isListening()) {
-      connection.logger().log(Level.INFO, "Stopped listening to " + name + ".");
+      log(Level.INFO, "Stopped listening to " + name + ".");
       listener.stop();
       listener = null;
     }
@@ -204,6 +204,10 @@ public class Room extends GenericJson {
   
   private void load() throws IOException {
     if (!loaded) { reload(); }
+  }
+  
+  private void log(Level level, String message) {
+    connection.log(level, message);
   }
   
   private void reload() throws IOException {

@@ -3,6 +3,7 @@ package com.madhackerdesigns.jinder;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.api.client.http.BasicAuthentication;
@@ -29,6 +30,7 @@ public class Connection {
   private static HttpTransport httpTransport;
   private static JsonFactory jsonFactory;
   private static Logger logger;
+  private static boolean logging = false;
   
   private String subdomain;
   private String token;
@@ -55,6 +57,14 @@ public class Connection {
     connection = null;
   }
   
+  protected void disableLogging() {
+    logging = false;
+  }
+  
+  protected void enableLogging() {
+    logging = true;
+  }
+  
   protected void disableSSL() {
     ssl = false;
   }
@@ -78,11 +88,8 @@ public class Connection {
     return connection().buildGetRequest(streamUrlFor(roomId)).execute();
   }
   
-  protected Logger logger() {
-    if (logger == null) {
-      logger = Logger.getLogger("com.madhackerdesigns.jinder");
-    }
-    return logger;
+  protected void log(Level level, String message) {
+    if (logging) { logger().log(level, message); }
   }
   
   protected HttpResponse post(String path, Object object) throws IOException {
@@ -164,6 +171,13 @@ public class Connection {
   private JsonHttpContent jsonContentFor(Object object) {
     if (object == null) { return null; }
     return new JsonHttpContent(jsonFactory(), object);
+  }
+  
+  private Logger logger() {
+    if (logger == null) {
+      logger = Logger.getLogger("com.madhackerdesigns.jinder");
+    }
+    return logger;
   }
 
   private HttpRequestInitializer setConnectionOptions() {
