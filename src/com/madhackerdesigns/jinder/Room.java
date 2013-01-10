@@ -79,6 +79,7 @@ public class Room extends GenericJson {
   
   public HttpResponse leave() throws IOException {
     stopListening();
+    log(Level.INFO, "Leaving " + name + "...");
     return post("leave", null);
   }
   
