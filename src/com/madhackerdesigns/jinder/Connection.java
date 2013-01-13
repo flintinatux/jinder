@@ -1,13 +1,9 @@
 package com.madhackerdesigns.jinder;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,14 +16,11 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.Base64;
-import com.google.api.client.util.StringUtils;
 import com.madhackerdesigns.jinder.models.SingleUser;
 
 public class Connection {
@@ -108,66 +101,8 @@ public class Connection {
     return connection().buildPutRequest(urlFor(path), jsonContentFor(object)).execute();
   }
   
-  protected void rawPost(String path, File file) throws IOException {
-    // get input stream to the file
-    FileInputStream fileStream = new FileInputStream(file);
-    String contentType = URLConnection.guessContentTypeFromName(file.getName());
-    if (contentType == null) { contentType = "application/octet-stream"; }
-    InputStreamContent fileContent = new InputStreamContent(contentType, fileStream);
-    
-    // build content disposition and type
-    String contentDisposition = "Content-Disposition: form-data; name=\"upload\"; filename=\"" + file.getName() + "\"";
-    contentType = "Content-Type: " + contentType;
-    
-    // build request body following the standard format
-    String BOUNDARY = "---------------------------XXX";
-    String requestStart = String.format("--%s\r\n%s\r\n%s\r\n\r\n", BOUNDARY, contentDisposition, contentType);
-    String requestEnd = String.format("\r\n--%s--\r\n", BOUNDARY);
-    
-    // create http connection
-    URL url = new URL(urlFor(path).build());
-    logger().log(Level.INFO, "Uploading to URL: " + url.toExternalForm());
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    
-    // set basic authentication
-    String userPass = token() + ":X";
-    String encodedAuth = Base64.encodeBase64String(StringUtils.getBytesUtf8(userPass));
-    connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-    
-    // setup connection properties
-    connection.setDoOutput(true);
-    connection.setDoInput(true);
-    connection.setUseCaches(false);
-    connection.setRequestMethod("POST");
-    connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-    
-    // set content length property
-    long contentLength = requestStart.length() + file.length() + requestEnd.length();
-    connection.setRequestProperty("Content-Length", Long.toString(contentLength));
-    
-    // set streaming mode of the connection
-    // see http://developer.android.com/reference/java/net/HttpURLConnection.html
-    if (contentLength >= 0 && contentLength <= Integer.MAX_VALUE) {
-      connection.setFixedLengthStreamingMode((int) contentLength);
-    } else {
-      connection.setChunkedStreamingMode(0);
-    }
-    
-    // send the request body
-    connection.connect();
-    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-    out.writeBytes(requestStart);
-    out.flush();
-    fileContent.writeTo(out);
-    out.flush();
-    out.writeBytes(requestEnd);
-    out.flush();
-    out.close();
-    
-    // read response from connection
-    int code = connection.getResponseCode();
-    String message = connection.getResponseMessage();
-    logger().log(Level.INFO, String.format("Response: %d %s", code, message));
+  protected RawPost.Response rawPost(String path, File file) throws IOException {
+    return new RawPost(this, urlFor(path).build(), file).execute();
   }
   
   protected void setHttpTransport(HttpTransport httpTransport) {

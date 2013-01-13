@@ -16,14 +16,14 @@ public class LiveTest {
       campfire.enableLogging();
       Room room = campfire.rooms().get(0);
       room.join();
-      room.speak("Testing upload with Jinder.");
-      room.play("nyan");
-      room.lock();
-      room.unlock();
+//      room.speak("Testing upload with Jinder.");
+//      room.play("nyan");
+//      room.lock();
+//      room.unlock();
       File file = new File("C:/Users/flintinatux/uploaded_file.txt");
       room.upload(file);
-      room.speak("End of test.");
-      room.leave();
+//      room.speak("End of test.");
+//      room.leave();
     } catch (IOException e) {
       e.printStackTrace();
     }
