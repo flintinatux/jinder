@@ -1,5 +1,6 @@
 package com.madhackerdesigns.jinder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -73,13 +74,13 @@ public class Room extends GenericJson {
   }
   
   public HttpResponse join() throws IOException {
-    log(Level.INFO, "Joining " + name + "...");
+    log(Level.INFO, "Joining room: " + name);
     return post("join", null);
   }
   
   public HttpResponse leave() throws IOException {
     stopListening();
-    log(Level.INFO, "Leaving " + name + "...");
+    log(Level.INFO, "Leaving room: " + name);
     return post("leave", null);
   }
   
@@ -135,7 +136,7 @@ public class Room extends GenericJson {
   
   public void stopListening() {
     if (isListening()) {
-      log(Level.INFO, "Stopped listening to " + name + ".");
+      log(Level.INFO, "Stopped listening to room: " + name);
       listener.stop();
       listener = null;
     }
@@ -158,14 +159,9 @@ public class Room extends GenericJson {
     return post("unlock", null);
   }
   
-//  public HttpResponse upload(File file, String filename, String contentType) throws IOException {
-//    FileContent uploadContent = new FileContent(contentType, file);
-//    HttpRequest request = connection.rawPostRequest(roomUrlFor("uploads"), uploadContent);
-//    HttpHeaders headers = new HttpHeaders();
-//    headers.put("Content-Disposition", "form-data; name=\"upload\"; filename=\"" + filename + "\"");
-//    request.setHeaders(headers);
-//    return request.execute();
-//  }
+  public void upload(File file) throws IOException {
+    connection.rawPost(roomUrlFor("uploads"), file);
+  }
 
   public User user(long id) throws IOException {
     load();

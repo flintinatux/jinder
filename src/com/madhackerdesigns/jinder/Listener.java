@@ -23,11 +23,11 @@ public abstract class Listener implements Runnable {
 
   @Override
   public void run() {
-    log(Level.INFO, "Listening to " + room.name + "...");
+    log(Level.INFO, "Listening to room: " + room.name);
     try {
       connectAndListenToMessages();
     } catch (IOException e) {
-      log(Level.WARNING, "Got disconnected from " + room.name + "!");
+      log(Level.WARNING, "Got disconnected from room: " + room.name + "!");
     }
   }
   
