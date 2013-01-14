@@ -38,50 +38,30 @@ public class RawPost {
   // protected methods
   
   protected Response execute() throws IOException {
-    // create http connection
+    HttpURLConnection conn = buildHttpConnection();
+    sendRequestThrough(conn);
+    return responseFrom(conn);
+  }
+  
+  // private methods
+
+  private HttpURLConnection buildHttpConnection() throws IOException {
     log(Level.INFO, "Uploading to URL: " + url);
     HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-    
-    // set basic authentication
     conn.setRequestProperty("Authorization", "Basic " + encodedAuth());
-    
-    // setup connection properties
     conn.setDoOutput(true);
     conn.setDoInput(true);
     conn.setUseCaches(false);
     conn.setRequestMethod("POST");
     conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-    
-    // set content length property
     conn.setRequestProperty("Content-Length", contentLength().toString());
-    
-    // set streaming mode of the connection
-    // see http://developer.android.com/reference/java/net/HttpURLConnection.html
     if (contentLength() >= 0 && contentLength() <= Integer.MAX_VALUE) {
       conn.setFixedLengthStreamingMode(contentLength().intValue());
     } else {
       conn.setChunkedStreamingMode(0);
     }
-    
-    // send the request body
-    conn.connect();
-    DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-    out.writeBytes(requestBodyStart());
-    out.flush();
-    fileContent().writeTo(out);
-    out.flush();
-    out.writeBytes(requestBodyEnd);
-    out.flush();
-    out.close();
-    
-    // read response from connection
-    int code = conn.getResponseCode();
-    String message = conn.getResponseMessage();
-    log(Level.INFO, String.format("Response: %d %s", code, message));
-    return new Response(code, message);
+    return conn;
   }
-  
-  // private methods
   
   private Long contentLength() {
     if (contentLength == null) {
@@ -118,6 +98,25 @@ public class RawPost {
       requestBodyStart = String.format("--%s\r\n%s\r\n%s\r\n\r\n", boundary, dispositionHeader, typeHeader);
     }
     return requestBodyStart;
+  }
+
+  private Response responseFrom(HttpURLConnection conn) throws IOException {
+    int code = conn.getResponseCode();
+    String message = conn.getResponseMessage();
+    log(Level.INFO, String.format("Response: %d %s", code, message));
+    return new Response(code, message);
+  }
+
+  private void sendRequestThrough(HttpURLConnection conn) throws IOException {
+    conn.connect();
+    DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+    out.writeBytes(requestBodyStart());
+    out.flush();
+    fileContent().writeTo(out);
+    out.flush();
+    out.writeBytes(requestBodyEnd);
+    out.flush();
+    out.close();
   }
   
   // internal classes
