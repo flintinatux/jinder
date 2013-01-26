@@ -10,9 +10,8 @@ import java.util.SortedSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.madhackerdesigns.jinder.Campfire;
-import com.madhackerdesigns.jinder.Room;
 import com.madhackerdesigns.jinder.helpers.MockTransport;
+import com.madhackerdesigns.jinder.models.Account;
 import com.madhackerdesigns.jinder.models.User;
 
 public class CampfireTest extends JinderTest {
@@ -99,6 +98,13 @@ public class CampfireTest extends JinderTest {
     campfire.setHttpTransport(new MockTransport("GET", "/users/me.json", 200, fixture("me.json")));
     User me = campfire.me();
     assertEquals("John Doe", me.name());
+  }
+  
+  @Test
+  public void fetchesAccountInformation() throws IOException {
+    campfire.setHttpTransport(new MockTransport("GET", "/account.json", 200, fixture("account.json")));
+    Account account = campfire.account();
+    assertEquals("Your Company", account.name);
   }
   
   // private helpers

@@ -3,6 +3,9 @@ package com.madhackerdesigns.jinder.models;
 import com.google.api.client.util.Key;
 
 public class SingleUser {
-  @Key 
-  public User user;
+  
+  //Campfire API data model: User
+  
+  @Key public User user;
+  
 }

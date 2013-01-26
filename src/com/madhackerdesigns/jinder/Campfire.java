@@ -13,7 +13,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.madhackerdesigns.jinder.models.Account;
 import com.madhackerdesigns.jinder.models.RoomList;
+import com.madhackerdesigns.jinder.models.SingleAccount;
 import com.madhackerdesigns.jinder.models.SingleUser;
 import com.madhackerdesigns.jinder.models.User;
 
@@ -56,7 +58,16 @@ public class Campfire {
   
   // public methods
   
-//  public 
+  /**
+   * According to the public Campfire API, the account endpoint is only for reading, and any
+   * authenticated user has access to the information, not just the owner.
+   * 
+   * @return the current {@link Account} in use
+   * @throws IOException
+   */
+  public Account account() throws IOException {
+    return connection.get("/account.json").parseAs(SingleAccount.class).account;
+  }
   
   /**
    * Disables logging.
