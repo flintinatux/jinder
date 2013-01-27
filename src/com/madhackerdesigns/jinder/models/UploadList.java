@@ -16,7 +16,7 @@ public class UploadList {
   public List<Upload> uploads() {
     List<Upload> mapped = new ArrayList<Upload>();
     for (SingleUpload single : this.uploads){
-      mapped.add(single.upload());
+      mapped.add(single.upload);
     }
     return mapped;
   }

@@ -113,25 +113,29 @@ public class RoomTest extends JinderTest {
   @Test
   public void postsToSpeakMessage() throws IOException {
     campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
-    room.speak("Hello");
+    Message message = room.speak("Hello");
+    assertEquals(1, message.id.intValue());
   }
   
   @Test
   public void postsToPasteMessage() throws IOException {
     campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
-    room.paste("Hello\nWorld!");
+    Message message = room.paste("Hello\nWorld!");
+    assertEquals(1, message.id.intValue());
   }
   
   @Test
   public void postsToPlaySound() throws IOException {
     campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
-    room.play("trombone");
+    Message message = room.play("trombone");
+    assertEquals(1, message.id.intValue());
   }
   
   @Test
   public void postsToTweetTheUrl() throws IOException {
     campfire.setHttpTransport(new MockTransport("POST", "/room/80749/speak.json", 201, fixture("speak.json")));
-    room.tweet("http://madhackerdesigns.com");
+    Message message = room.tweet("http://madhackerdesigns.com");
+    assertEquals(1, message.id.intValue());
   }
   
   @Test

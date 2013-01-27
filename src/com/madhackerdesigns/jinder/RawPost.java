@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -104,7 +105,8 @@ public class RawPost {
     int code = conn.getResponseCode();
     String message = conn.getResponseMessage();
     log(Level.INFO, String.format("Response: %d %s", code, message));
-    return new Response(code, message);
+    InputStream content = conn.getInputStream();
+    return new Response(code, message, content);
   }
 
   private void sendRequestThrough(HttpURLConnection conn) throws IOException {
@@ -124,18 +126,24 @@ public class RawPost {
   public class Response {
     
     private int code;
+    private InputStream content;
     private String message;
     
-    protected Response(int code, String message) {
+    protected Response(int code, String message, InputStream content) {
       this.code = code;
       this.message = message;
+      this.content = content;
     }
     
-    public int getResponseCode() {
+    public int getCode() {
       return code;
     }
     
-    public String getResponseMessage() {
+    public InputStream getContent() {
+      return content;
+    }
+    
+    public String getMessage() {
       return message;
     }
     

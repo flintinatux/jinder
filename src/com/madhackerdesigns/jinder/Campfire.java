@@ -24,7 +24,7 @@ import com.madhackerdesigns.jinder.models.User;
  * The {@link Campfire} class provides the public methods for accessing a 37signals Campfire
  * account. A new Campfire instance will build its own {@link Connection} for communicating
  * with the public Campfire API. The main purpose of the Campfire class is to fetch information
- * about available {@link Room}s and {@link User}s.
+ * about available {@link Room}s and {@link User}s, as well as the current {@link Account} in use.
  * 
  * @author flintinatux
  * @see Room
@@ -37,8 +37,8 @@ public class Campfire {
   // constructors
   
   /**
-   * @param subdomain
-   * @param token
+   * @param subdomain - the Campfire subdomain to connect to.
+   * @param token - the user's API authentication token.
    */
   public Campfire(String subdomain, String token) {
     this.connection = new Connection(subdomain, token);
@@ -48,9 +48,9 @@ public class Campfire {
    * This version of the constructor does not permanently store the username
    * and password, but instead uses them to obtain the API authentication token.
    * 
-   * @param subdomain
-   * @param username
-   * @param password
+   * @param subdomain - the Campfire subdomain to connect to.
+   * @param username - the user's username.
+   * @param password - the user's password.
    */
   public Campfire(String subdomain, String username, String password) {
     this.connection = new Connection(subdomain, username, password);
