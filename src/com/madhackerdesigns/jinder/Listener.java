@@ -10,6 +10,15 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Data;
 import com.madhackerdesigns.jinder.models.Message;
 
+/**
+ * To listen for and process new streaming messages from a {@link Room}, first create a new Listener
+ * and implement the abstract {@link #handleNewMessage(Message)} method. Then attach it to the Room with
+ * {@link Room#listen(Listener)}.
+ * 
+ * @author flintinatux
+ * @see Room
+ * @see Message
+ */
 public abstract class Listener implements Runnable {
   
   private Connection connection;
@@ -21,6 +30,9 @@ public abstract class Listener implements Runnable {
   
   public abstract void handleNewMessage(Message message);
 
+  /* (non-Javadoc)
+   * @see java.lang.Runnable#run()
+   */
   @Override
   public void run() {
     log(Level.INFO, "Listening to room: " + room.name);

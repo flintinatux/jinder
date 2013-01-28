@@ -141,7 +141,7 @@ public class RoomTest extends JinderTest {
   @Test
   public void findsUserByIdInRoomCache() throws IOException {
     User user = room.user(2);
-    assertEquals("John Doe", user.name());
+    assertEquals("John Doe", user.name);
   }
   
   @Test
@@ -151,7 +151,7 @@ public class RoomTest extends JinderTest {
     mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
     campfire.setHttpTransport(mockTransport);
     User user = room.user(3);
-    assertEquals("Jimmy Doe", user.name());
+    assertEquals("Jimmy Doe", user.name);
   }
   
   @Test
@@ -161,7 +161,7 @@ public class RoomTest extends JinderTest {
     mockTransport.addResponse("GET", "/users/3.json", 200, fixture("user_3.json"));
     campfire.setHttpTransport(mockTransport);
     User user = room.user(3);
-    assertEquals("Jimmy Doe", user.name());
+    assertEquals("Jimmy Doe", user.name);
     campfire.setHttpTransport(new MockTransport("GET", "/room/80749.json", 200, fixture("room_80749.json")));
     user = room.user(3);
     List<User> users = room.users();

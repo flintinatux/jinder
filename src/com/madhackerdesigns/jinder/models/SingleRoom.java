@@ -5,7 +5,8 @@ import com.madhackerdesigns.jinder.Room;
 
 public class SingleRoom {
 
-  //Campfire API data model: Room
+  // Campfire API data model: Room
+  
   @Key public Room room;
   
 }

@@ -74,7 +74,7 @@ public class ListenerTest extends JinderTest {
       public void handleNewMessage(Message message) {
         listenCount++;
         if (listenCount == 1) { assertNull(message.user); }
-        if (listenCount == 5) { assertEquals("Jimmy Doe", message.user.name()); }
+        if (listenCount == 5) { assertEquals("Jimmy Doe", message.user.name); }
       }
     };
     room.setListener(listener);

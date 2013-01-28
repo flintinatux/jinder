@@ -4,7 +4,7 @@ import com.google.api.client.util.Key;
 
 public class Account {
   
-  //Campfire API data model: Account
+  // Campfire API data model: Account
     
   @Key public Long id;
   @Key public String name;

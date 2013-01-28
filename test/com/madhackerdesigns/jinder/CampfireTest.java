@@ -89,15 +89,15 @@ public class CampfireTest extends JinderTest {
     campfire.setHttpTransport(mockTransport);
     SortedSet<User> users = campfire.users();
     assertEquals(3, users.size());
-    assertEquals("Jane Doe", users.first().name());
-    assertEquals("John Doe", users.last().name());
+    assertEquals("Jane Doe", users.first().name);
+    assertEquals("John Doe", users.last().name);
   }
   
   @Test
   public void returnsCurrentUserInfoWhenMeRequested() throws IOException {
     campfire.setHttpTransport(new MockTransport("GET", "/users/me.json", 200, fixture("me.json")));
     User me = campfire.me();
-    assertEquals("John Doe", me.name());
+    assertEquals("John Doe", me.name);
   }
   
   @Test

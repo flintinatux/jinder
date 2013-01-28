@@ -4,6 +4,8 @@ import com.google.api.client.util.Key;
 
 public class Upload {
   
+  // Campfire API data model: Upload
+  
   @Key public long id;
   @Key public long byte_size;
   @Key public String content_type;

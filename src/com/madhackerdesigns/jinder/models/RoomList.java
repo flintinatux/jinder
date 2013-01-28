@@ -9,12 +9,6 @@ public class RoomList {
 
   // Campfire API data model: Rooms
   
-  @Key private List<Room> rooms;
-  
-  // public methods
-  
-  public List<Room> rooms() {
-    return rooms;
-  }
+  @Key public List<Room> rooms;
   
 }
