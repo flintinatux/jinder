@@ -4,7 +4,9 @@ A Campfire API client library for Java. Heavily inspired by Tinder.
 
 ## Installation
 
-Just add the [latest jinder-x.y.z.jar](https://github.com/flintinatux/jinder/tree/master/gen) file to your build path. Jinder uses the [google-http-java-client library](https://code.google.com/p/google-http-java-client/), so you'll also need to add those jars as necessary.
+Just add the [latest jinder-x.y.z.jar](https://github.com/flintinatux/jinder/tree/master/gen) file to your build path. Eclipse users will also want to set the "Source attachment" to its corresponding "-sources" jar to aid in development. 
+
+Jinder uses the [google-http-java-client library](https://code.google.com/p/google-http-java-client/), so you'll also need to add those jars as necessary.
 
 ## Usage
 
