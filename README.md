@@ -25,12 +25,10 @@ If you want to listen to streaming messages from a `Room`, you can do that too:
 
 ```java
 room.listen(new Listener() {
-  
   @Override
   public void handleNewMessage(Message message) {
     System.out.println(message.body);
   }
-
 });
 ```
 
